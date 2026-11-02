@@ -12,7 +12,7 @@
 
 </div>
 
-![MangaWeaver 真实生成预览](docs/media/demo-poster.jpg)
+![MangaWeaver：从漫画分镜到彩色动画](docs/media/mangaweaver-cover.jpg)
 
 > 开发中的本地漫画转动画工作台。基于现有图像和视频模型，将漫画页组织为动画镜头，并通过创作与审查循环逐步生成关键画面和有声短片。
 
