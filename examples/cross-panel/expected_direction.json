@@ -1,0 +1,37 @@
+{
+  "shot_id": "s001",
+  "entry": "传球者尚未出手",
+  "source_moment": "半空中的球位于 4 秒",
+  "exit": "接球者手前，暂不添加后续事件",
+  "rhythm": "准备—飞行—到手前；示例每段 4 秒仅为后端协议验证",
+  "anchors": [
+    {
+      "keyframe_id": "k001",
+      "time": 0.0,
+      "role": "entry",
+      "description": "球仍在传球者手边",
+      "source_panel_ids": [
+        "p001"
+      ],
+      "inferred": false
+    },
+    {
+      "keyframe_id": "k002",
+      "time": 4.0,
+      "role": "source_moment",
+      "description": "球位于双方之间的半空中",
+      "source_panel_ids": [
+        "p002"
+      ],
+      "inferred": false
+    },
+    {
+      "keyframe_id": "k003",
+      "time": 8.0,
+      "role": "exit",
+      "description": "球到达接球者伸出的双手前",
+      "source_panel_ids": [],
+      "inferred": true
+    }
+  ]
+}

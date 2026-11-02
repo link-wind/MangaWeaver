@@ -1,0 +1,50 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {bookGraph,emptyView,groupKey,nodeKey} from '../src/lib/bookCanvas';
+import {canvasState} from '../src/lib/canvas';
+import {pageRange} from '../src/features/BookPicker';
+import {nextRunStage} from '../src/lib/runStages';
+import type {Book,RunData} from '../src/lib/types';
+const fixture=JSON.parse(readFileSync(resolve('../examples/cross-panel/production.json'),'utf8'));
+function run(directory:string):RunData{return {directory,original_page:'/page.png',experimental:false,records:[{file:'production.json',data:fixture}],media:[]};}
+const book:Book={id:'book-test',name:'示例',page_count:2,pages:[1,2].map(n=>({id:`page${n}`,number:n,image:'/page.png',thumbnail:'/thumb.png'}))};
+test('semantic groups redirect edges, retain logical identity and avoid cross-page collisions',()=>{
+  const a=run('/a'),b=run('/b'),view=emptyView();
+  const branches=[{directory:'/a',number:1,run:a,state:canvasState(a)},{directory:'/b',number:2,run:b,state:canvasState(b)}];
+  view.collapsed_groups=[groupKey('/a','panel'),groupKey('/a','frame')];
+  view.positions[nodeKey('/a','shot:s001',book)]={x:123,y:456};
+  const folded=bookGraph(branches,'/a',view,[],false,book);
+  const ids=new Set(folded.nodes.map(n=>n.id));
+  assert.equal(ids.size,folded.nodes.length);
+  assert.ok(!ids.has(nodeKey('/a','panel:p001',book)));
+  assert.ok(ids.has(nodeKey('/b','panel:p001',book)));
+  assert.ok(folded.logical.some(n=>n.id===nodeKey('/a','panel:p001',book)));
+  assert.ok(folded.edges.some(e=>e.source===groupKey('/a','panel')&&e.target===nodeKey('/a','arrangement',book)));
+  assert.ok(folded.edges.every(e=>ids.has(e.source)&&ids.has(e.target)&&e.source!==e.target));
+  assert.deepEqual(folded.nodes.find(n=>n.id===nodeKey('/a','shot:s001',book))?.position,{x:123,y:456});
+  view.collapsed_pages=['/a'];
+  const pageFolded=bookGraph(branches,'/b',view,[],false,book);
+  assert.deepEqual(pageFolded.nodes.filter(n=>n.data.run==='/a').map(n=>n.id),['page:/a']);
+  assert.ok(pageFolded.nodes.some(n=>n.id===nodeKey('/b','shot:s001',book)));
+  view.collapsed_pages=[];view.collapsed_groups=[];
+  assert.ok(bookGraph(branches,'/a',view,[],false,book).nodes.some(n=>n.id===nodeKey('/a','panel:p001',book)));
+});
+test('page ranges are explicit file order and reject malformed or out-of-book targets',()=>{
+  assert.deepEqual(pageRange('2-4,8，3',10),[2,3,4,8]);
+  assert.throws(()=>pageRange('0-2',10));assert.throws(()=>pageRange('4-2',10));assert.throws(()=>pageRange('1,11',10));assert.throws(()=>pageRange('2.5',10));
+});
+test('next stage advances beyond panels and respects rejected planning',()=>{
+  const r=run('/a');
+  r.records=[];
+  assert.equal(nextRunStage(r),'preprocess');
+  r.records.push({file:'source/manifest.json',data:fixture.source});
+  assert.equal(nextRunStage(r),'script');
+  r.records.push({file:'production.json',data:fixture});
+  assert.equal(nextRunStage(r),'video');
+  r.records=[{file:'source/manifest.json',data:fixture.source},{file:'planning_draft.json',data:{script:fixture.script,reviews:[{scope:'script',accepted:false}]}}];
+  assert.equal(nextRunStage(r),'script');
+  r.records[1].data={script:fixture.script,shot_list:fixture.shot_list,directions:fixture.directions,reviews:[]};
+  assert.equal(nextRunStage(r),'storyboard');
+});

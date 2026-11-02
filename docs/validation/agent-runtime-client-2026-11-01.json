@@ -1,0 +1,136 @@
+{
+  "channel": "huanling / gemini-3.8-flash / native / curl",
+  "evidence": "实际原生客户端点击运行及发送，不是仅调用引擎脚本",
+  "project": "results/agent-runtime-validation-20261101/project",
+  "turns": [
+    {
+      "turn_id": "5afe615bdead43aca1cb3023909111f4",
+      "branch_id": "main",
+      "delta_count": 4,
+      "first_delta": "2026-11-01T07:08:13.468563+00:00",
+      "terminal": "2026-11-01T07:08:13.594423+00:00",
+      "status": "waiting_user"
+    },
+    {
+      "turn_id": "c8572a4521c04840a39d91691d6be06e",
+      "branch_id": "main",
+      "delta_count": 3,
+      "first_delta": "2026-11-01T07:10:37.653085+00:00",
+      "terminal": "2026-11-01T07:10:39.506567+00:00",
+      "status": "interrupted"
+    },
+    {
+      "turn_id": "00407fbddc754090a22f02d0a2430efc",
+      "branch_id": "main",
+      "delta_count": 2,
+      "first_delta": "2026-11-01T07:13:43.692643+00:00",
+      "terminal": "2026-11-01T07:14:57.353735+00:00",
+      "status": "completed"
+    },
+    {
+      "turn_id": "a39c3d1da09d4e41a2dcf222647268c1",
+      "branch_id": "main",
+      "delta_count": 1,
+      "first_delta": "2026-11-01T07:15:51.828153+00:00",
+      "terminal": "2026-11-01T07:15:51.919800+00:00",
+      "status": "completed"
+    },
+    {
+      "turn_id": "7841408b87784dc8b04734a318f5dd29",
+      "branch_id": "8741d0fde51b43a5b38473147fcd951a",
+      "delta_count": 1,
+      "first_delta": "2026-11-01T07:17:11.187136+00:00",
+      "terminal": "2026-11-01T07:17:11.254763+00:00",
+      "status": "completed"
+    },
+    {
+      "turn_id": "de5e2ec976e240d8934551f7d7233473",
+      "branch_id": "main",
+      "delta_count": 0,
+      "first_delta": null,
+      "terminal": "2026-11-01T07:22:19.509578+00:00",
+      "status": "completed"
+    },
+    {
+      "turn_id": "4b6bf463029f41d283ed4eea5882c968",
+      "branch_id": "main",
+      "delta_count": 0,
+      "first_delta": null,
+      "terminal": "2026-11-01T07:25:57.538072+00:00",
+      "status": "waiting_user"
+    },
+    {
+      "turn_id": "020bbbd26083402b996b33e8f7d91eb7",
+      "branch_id": "main",
+      "delta_count": 6,
+      "first_delta": "2026-11-01T07:30:03.852041+00:00",
+      "terminal": "2026-11-01T07:30:44.426502+00:00",
+      "status": "completed"
+    }
+  ],
+  "specialists": [
+    {
+      "id": "026d456a24499199411909bbd3788f51",
+      "role": "script.creator",
+      "target": "all",
+      "status": "interrupted",
+      "steps": 1,
+      "task_id": "f33d651d3c154e9f9cc8bec98c1889ac"
+    },
+    {
+      "id": "c97344f53617d1441f5252ce86f04d32",
+      "role": "script.reviewer",
+      "target": "p001",
+      "status": "completed",
+      "steps": 1,
+      "task_id": "b11ced9cafc142aa962a577c53d0db92"
+    },
+    {
+      "id": "0f3826b0da71d742de64526d70ba4bea",
+      "role": "script.reviewer",
+      "target": "characters",
+      "status": "completed",
+      "steps": 1,
+      "task_id": "b11ced9cafc142aa962a577c53d0db92"
+    },
+    {
+      "id": "9261887df8635b2a6b74aa625bfceece",
+      "role": "script.creator",
+      "target": "all",
+      "status": "completed",
+      "steps": 2,
+      "task_id": "b11ced9cafc142aa962a577c53d0db92"
+    },
+    {
+      "id": "70fe6c6757db70bda3785fbcf87f1249",
+      "role": "script.reviewer",
+      "target": "p001",
+      "status": "completed",
+      "steps": 1,
+      "task_id": "4c24fe03fa614a3e8037dec32a9c5558"
+    },
+    {
+      "id": "36ef5a8efe984e9a3107bdcd21964e69",
+      "role": "script.creator",
+      "target": "all",
+      "status": "completed",
+      "steps": 1,
+      "task_id": "4c24fe03fa614a3e8037dec32a9c5558"
+    },
+    {
+      "id": "c0a678d21a988888444e2afe7c14bffe",
+      "role": "script.reviewer",
+      "target": "characters",
+      "status": "completed",
+      "steps": 1,
+      "task_id": "4c24fe03fa614a3e8037dec32a9c5558"
+    }
+  ],
+  "final_pending": null,
+  "summary_counts": {
+    "messages": 1,
+    "recent_results": 0
+  },
+  "branches": 2,
+  "new_image_or_video_files": 0
+}

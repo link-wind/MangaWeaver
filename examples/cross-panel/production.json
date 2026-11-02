@@ -1,0 +1,251 @@
+{
+  "source": {
+    "case_id": "cross-panel",
+    "panels": [
+      {
+        "panel_id": "p001",
+        "image": "images/entry.png",
+        "page_id": "page001",
+        "text": "",
+        "uncertainties": [],
+        "bbox": null
+      },
+      {
+        "panel_id": "p002",
+        "image": "images/impact.png",
+        "page_id": "page001",
+        "text": "",
+        "uncertainties": [],
+        "bbox": null
+      },
+      {
+        "panel_id": "p003",
+        "image": "images/reaction.png",
+        "page_id": "page001",
+        "text": "",
+        "uncertainties": [],
+        "bbox": null
+      }
+    ],
+    "reference_images": [],
+    "characters": [
+      {
+        "character_id": "C1",
+        "description": "蓝衣传球者，在画面左侧"
+      },
+      {
+        "character_id": "C2",
+        "description": "红衣接球者，在画面右侧"
+      },
+      {
+        "character_id": "C3",
+        "description": "绿衣旁观者"
+      }
+    ],
+    "transcript": ""
+  },
+  "script": {
+    "case_id": "cross-panel",
+    "characters": [
+      {
+        "character_id": "C1",
+        "description": "蓝衣传球者，在画面左侧"
+      },
+      {
+        "character_id": "C2",
+        "description": "红衣接球者，在画面右侧"
+      },
+      {
+        "character_id": "C3",
+        "description": "绿衣旁观者"
+      }
+    ],
+    "panels": [
+      {
+        "panel_id": "p001",
+        "environment": "空旷球场",
+        "description": "左侧人物准备向右侧传球",
+        "facts": [
+          "左侧人物准备向右侧传球"
+        ],
+        "inferences": [
+          "球的位移可组织为一次传球"
+        ],
+        "uncertainties": [],
+        "dialogue": [],
+        "character_ids": [
+          "C1",
+          "C2"
+        ]
+      },
+      {
+        "panel_id": "p002",
+        "environment": "空旷球场",
+        "description": "球在左右人物之间的半空中",
+        "facts": [
+          "球在左右人物之间的半空中"
+        ],
+        "inferences": [
+          "球的位移可组织为一次传球"
+        ],
+        "uncertainties": [],
+        "dialogue": [],
+        "character_ids": [
+          "C1",
+          "C2"
+        ]
+      },
+      {
+        "panel_id": "p003",
+        "environment": "空旷球场",
+        "description": "旁观者注视场内",
+        "facts": [
+          "旁观者注视场内"
+        ],
+        "inferences": [],
+        "uncertainties": [],
+        "dialogue": [],
+        "character_ids": [
+          "C3"
+        ]
+      }
+    ]
+  },
+  "shot_list": {
+    "case_id": "cross-panel",
+    "shots": [
+      {
+        "shot_id": "s001",
+        "source_panel_ids": [
+          "p001",
+          "p002"
+        ],
+        "type": "action",
+        "intent": "展现一次传球的连续过程",
+        "description": "从准备传球发展到球飞至接球者手前",
+        "environment": "球场",
+        "camera": "固定侧面全景",
+        "duration": 8.0,
+        "rationale": "将原漫画的半空瞬间放在动作中段；跨格时把准备与飞行归为同一事件",
+        "character_ids": [
+          "C1",
+          "C2"
+        ],
+        "transition": "cut"
+      },
+      {
+        "shot_id": "s002",
+        "source_panel_ids": [
+          "p003"
+        ],
+        "type": "static",
+        "intent": "保留反应停顿",
+        "description": "旁观者注视球场，轻微呼吸",
+        "environment": "球场边缘",
+        "camera": "固定近景",
+        "duration": 4.0,
+        "rationale": "表情反应无需重建主要动作，走单首帧路线",
+        "character_ids": [
+          "C3"
+        ],
+        "transition": "cut"
+      }
+    ]
+  },
+  "directions": [
+    {
+      "shot_id": "s001",
+      "entry": "传球者尚未出手",
+      "source_moment": "半空中的球位于 4 秒",
+      "exit": "接球者手前，暂不添加后续事件",
+      "rhythm": "准备—飞行—到手前；示例每段 4 秒仅为后端协议验证",
+      "anchors": [
+        {
+          "keyframe_id": "k001",
+          "time": 0.0,
+          "role": "entry",
+          "description": "球仍在传球者手边",
+          "source_panel_ids": [
+            "p001"
+          ],
+          "inferred": false
+        },
+        {
+          "keyframe_id": "k002",
+          "time": 4.0,
+          "role": "source_moment",
+          "description": "球位于双方之间的半空中",
+          "source_panel_ids": [
+            "p002"
+          ],
+          "inferred": false
+        },
+        {
+          "keyframe_id": "k003",
+          "time": 8.0,
+          "role": "exit",
+          "description": "球到达接球者伸出的双手前",
+          "source_panel_ids": [],
+          "inferred": true
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "keyframe_id": "k001",
+      "shot_id": "s001",
+      "time": 0.0,
+      "image": "images/entry.png",
+      "description": "球仍在传球者手边",
+      "source_panel_ids": [
+        "p001"
+      ],
+      "plan_signature": "b22ecfd4d8f6c88e10c89940bd75977c21a6531a53dc8398576a849c250a30c1",
+      "image_signature": "cb1e6e208ff7b024dd09593f49f124b7d6791b4863382ad31093108368c6dd87"
+    },
+    {
+      "keyframe_id": "k002",
+      "shot_id": "s001",
+      "time": 4.0,
+      "image": "images/impact.png",
+      "description": "球位于双方之间的半空中",
+      "source_panel_ids": [
+        "p002"
+      ],
+      "plan_signature": "b22ecfd4d8f6c88e10c89940bd75977c21a6531a53dc8398576a849c250a30c1",
+      "image_signature": "94d3533f90b9d3f5b234a52ed4f67c49363815d7c09f426848aedac3cc9b7b89"
+    },
+    {
+      "keyframe_id": "k003",
+      "shot_id": "s001",
+      "time": 8.0,
+      "image": "images/exit.png",
+      "description": "球到达接球者伸出的双手前",
+      "source_panel_ids": [],
+      "plan_signature": "b22ecfd4d8f6c88e10c89940bd75977c21a6531a53dc8398576a849c250a30c1",
+      "image_signature": "30c72b1074ff7968066787f401677486261bdba5c334f180644bf59fe64dacdb"
+    },
+    {
+      "keyframe_id": "s002_start",
+      "shot_id": "s002",
+      "time": 0.0,
+      "image": "images/reaction.png",
+      "description": "旁观者注视球场，轻微呼吸",
+      "source_panel_ids": [
+        "p003"
+      ],
+      "plan_signature": "8f2ae09d7ee0569925870fecd5c3976a0d1284bd66b3245cee05318eb2030ef3",
+      "image_signature": "b571146f8080de495367bd1ea057d4bd809e53885b8f68d88e7949829d7eec31"
+    }
+  ],
+  "reviews": [
+    {
+      "scope": "manual_diagnostic",
+      "winner_id": "manual_example",
+      "accepted": true,
+      "reason": "人工编写的协议诊断样例；没有调用模型，不作为视觉质量通过证据",
+      "issues": []
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="MangaWeaver 架构">
+    <mxGraphModel dx="1800" dy="1700" grid="1" gridSize="10" page="1" pageWidth="1800" pageHeight="1700">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="&lt;b&gt;MangaWeaver｜三阶段 Agent 架构&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:17px&quot;&gt;讨论稿 · 第一、第三阶段沿用参考设计；集中优化第二阶段&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#ffffff;strokeColor=#ffffff;fontSize=29;align=left;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="20" width="1720" height="80" />
+        </mxCell>
+        <mxCell id="s1" value="&lt;b&gt;阶段一 · 预处理&lt;/b&gt;　沿用 Manga2Animate" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#f5f7fa;strokeColor=#aab7c5;swimlane;startSize=45;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="120" width="1720" height="190" />
+        </mxCell>
+        <mxCell id="input" value="漫画页面&lt;br&gt;角色参考图" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#888888;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="110" y="190" width="290" height="80" />
+        </mxCell>
+        <mxCell id="prep" value="分格 · 阅读排序 · OCR&lt;br&gt;&lt;font style=&quot;font-size:15px&quot;&gt;模型工具&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="520" y="190" width="440" height="80" />
+        </mxCell>
+        <mxCell id="char" value="Character Description Creator&lt;br&gt;生成角色描述" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1080" y="190" width="570" height="80" />
+        </mxCell>
+        <mxCell id="a" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="input" target="prep">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="b" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="prep" target="char">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="s2" value="&lt;b&gt;阶段二 · 脚本、动画设计与视觉分镜优化&lt;/b&gt;　重点改进" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#f7f9fd;strokeColor=#6c8ebf;swimlane;startSize=50;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="350" width="1720" height="970" />
+        </mxCell>
+        <mxCell id="sc" value="Script Creator&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;原作事件、人物、对白与场景&lt;br&gt;生成脚本候选&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="260" y="450" width="390" height="110" />
+        </mxCell>
+        <mxCell id="sr" value="Character Reviewer ＋ Clip Reviewer&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;原作忠实度审查&lt;br&gt;组合选定脚本＋问题记录&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="810" y="450" width="460" height="110" />
+        </mxCell>
+        <mxCell id="ac" value="Animation Creator　[新增]&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;动作阶段、表演、关键姿态、时间节奏&lt;br&gt;生成完整动作方案候选&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="260" y="690" width="390" height="120" />
+        </mxCell>
+        <mxCell id="ar" value="Animation Reviewer　[新增]&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;动作因果、空间关系、表演与节奏&lt;br&gt;选定设计＋阻断问题＋修订建议&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="810" y="690" width="460" height="120" />
+        </mxCell>
+        <mxCell id="bc" value="Storyboard Creator　[扩展]&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;读取脚本＋动画设计&lt;br&gt;制作指定动作阶段的视觉分镜&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="260" y="930" width="390" height="120" />
+        </mxCell>
+        <mxCell id="br" value="Storyboard Reviewer　[扩展]&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;人物与风格＋动作阶段与姿态合理性&lt;br&gt;选定分镜＋可定位的视觉反馈&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="810" y="930" width="460" height="120" />
+        </mxCell>
+        <mxCell id="feedback" value="&lt;b&gt;反馈汇总与修订路由&lt;/b&gt;&lt;br&gt;&lt;br&gt;理解／对白错误&lt;br&gt;→ Script Creator&lt;br&gt;&lt;br&gt;动作／表演／节奏错误&lt;br&gt;→ Animation Creator&lt;br&gt;&lt;br&gt;画面未实现既定设计&lt;br&gt;→ Storyboard Creator&lt;br&gt;&lt;br&gt;&lt;font style=&quot;font-size:15px&quot;&gt;分镜暴露上游问题时回传&lt;br&gt;只改受影响内容，保留正确部分&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#fff4e8;strokeColor=#b46b25;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1380" y="530" width="330" height="490" />
+        </mxCell>
+        <mxCell id="export" value="&lt;b&gt;版本绑定、依赖校验与兼容导出&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;脚本 ↔ 动画设计 ↔ 分镜成套保存&lt;br&gt;输出 bestScript.json ＋ bestStoryboard.png&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="510" y="1160" width="750" height="100" />
+        </mxCell>
+        <mxCell id="c" value="候选" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="sc" target="sr">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="d" value="候选" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="ac" target="ar">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e" value="候选" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="bc" target="br">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="f" value="选定脚本" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="sr" target="ac">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1040" y="620" />
+              <mxPoint x="455" y="620" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="h" value="选定动画设计" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="ar" target="bc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1040" y="870" />
+              <mxPoint x="455" y="870" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="i" value="预算内选定结果" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=0.5;exitY=1;entryX=0.7;entryY=0;" edge="1" parent="1" source="br" target="export">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="j" value="有序漫画格＋OCR＋角色描述" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0.5;entryY=0;" edge="1" parent="1" source="char" target="sc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1690" y="330" />
+              <mxPoint x="455" y="330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="k" value="反馈" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.12;" edge="1" parent="1" source="sr" target="feedback">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="l" value="反馈" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.45;" edge="1" parent="1" source="ar" target="feedback">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="m" value="反馈" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.5;entryX=0;entryY=0.88;" edge="1" parent="1" source="br" target="feedback">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="n" value="下一轮：定向修订" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.95;entryX=0;entryY=0.5;" edge="1" parent="1" source="feedback" target="sc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1730" y="1090" />
+              <mxPoint x="140" y="1090" />
+              <mxPoint x="140" y="505" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="o" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.95;entryX=0;entryY=0.5;" edge="1" parent="1" source="feedback" target="ac">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1730" y="1090" />
+              <mxPoint x="140" y="1090" />
+              <mxPoint x="140" y="750" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="p" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#b46b25;dashed=1;exitX=1;exitY=0.95;entryX=0;entryY=0.5;" edge="1" parent="1" source="feedback" target="bc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="1730" y="1090" />
+              <mxPoint x="140" y="1090" />
+              <mxPoint x="140" y="990" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s3" value="&lt;b&gt;阶段三 · 视频生成与候选选择&lt;/b&gt;　沿用 Manga2Animate" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#f5f7fa;strokeColor=#aab7c5;swimlane;startSize=45;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="1370" width="1720" height="200" />
+        </mxCell>
+        <mxCell id="vc" value="Video Creator&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;整段参考 / 逐镜头首帧&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="150" y="1450" width="430" height="80" />
+        </mxCell>
+        <mxCell id="vr" value="Video Reviewer&lt;br&gt;&lt;font style=&quot;font-size:16px&quot;&gt;候选比较；逐镜头时参考上一片段&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="710" y="1450" width="480" height="80" />
+        </mxCell>
+        <mxCell id="out" value="选择 · 必要时拼接&lt;br&gt;最终动画" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="1320" y="1450" width="350" height="80" />
+        </mxCell>
+        <mxCell id="q" value="兼容现有视频输入" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="export" target="vc">
+          <mxGeometry as="geometry" relative="1">
+            <Array as="points">
+              <mxPoint x="885" y="1340" />
+              <mxPoint x="365" y="1340" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r" value="视频候选" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="vc" target="vr">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="s" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fontSize=16;labelBackgroundColor=#ffffff;strokeWidth=2;endArrow=block;strokeColor=#526b87;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" edge="1" parent="1" source="vr" target="out">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="note" value="&lt;b&gt;运行支撑（程序负责，非新增 Agent）&lt;/b&gt;　候选预算 · 最大轮数 · 检查点 · 任务 ID · 产物版本与依赖失效&lt;br&gt;&lt;font style=&quot;font-size:15px&quot;&gt;实线：主数据流　｜　橙色虚线：第二阶段反馈循环　｜　停止条件：通过 / 预算耗尽 / 转人工；未通过项随结果保留&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=19;spacing=12;strokeWidth=2;fillColor=#f5f5f5;strokeColor=#aab7c5;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry as="geometry" x="40" y="1600" width="1720" height="80" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

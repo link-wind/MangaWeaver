@@ -1,0 +1,26 @@
+schema: spec-driven
+
+context: |
+  MangaWeaver 是面向漫画转动画的本地 Python 引擎，提供 CLI 和 Electron + React 桌面工作台。
+  以根目录 AGENTS.md、PROJECT_GOALS.md 及 docs/ARCHITECTURE_DRAFT.md 的最新决定为依据。
+  工程使用 pyproject.toml 和 src/mangaweaver/ 包结构，业务分 preprocessing、planning、generation；
+  模型接入在 clients/gemini.py、clients/kie.py 与 clients/minimax.py，提示词按职责组织。
+  大部分实现优先参考 https://github.com/annchenn/Manga2Animate，先读对应代码与提示词再增量修改。
+  核心是镜头编排、静态/动作分类、镜头呈现节奏以及原漫画关键瞬间的时间位置，
+  不是细粒度身体动作设计。静态走首帧，动作暂以相邻关键帧首尾帧接续。
+  视频后端选定 MiniMax H3 Lite，默认生成 480P，实际首帧/首尾帧输入能力须先核实，不能假定已有实现支持。
+  不搭建 Web 服务、不训练模型、不自动替换视频后端。
+  优先主路径，错误清晰报出并保留中间结果；不扩展复杂回退、自动依赖传播或大规模测试。
+
+rules:
+  proposal:
+    - 用中文说明问题、范围及新增能力，保留模板标题。
+  specs:
+    - 使用中文描述需求与场景，保留规范要求的标题和 MUST 等关键字。
+    - 规范用户可观察行为，不把草案中的未确认数值直接变成硬性需求。
+  design:
+    - 明确参考实现的复用位置、最小改动及 MiniMax H3 能力核实的处理边界。
+    - 不新增插件体系、复杂回退或通用状态机。
+  tasks:
+    - 使用中文任务清单；先参考代码与后端能力核实，再按可执行顺序实施。
+    - 验证以关键数据映射和小规模链路为主，不列覆盖率或大量 Mock 测试任务。

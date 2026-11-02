@@ -1,0 +1,37 @@
+{
+  "provider": "huanling",
+  "model": "gemini-3.8-flash",
+  "api": "native",
+  "transport": "curl",
+  "deltas": [
+    {
+      "elapsed": 28.472,
+      "characters": 40
+    },
+    {
+      "elapsed": 28.633,
+      "characters": 43
+    },
+    {
+      "elapsed": 28.645,
+      "characters": 33
+    },
+    {
+      "elapsed": 28.645,
+      "characters": 17
+    }
+  ],
+  "finished_seconds": 28.675,
+  "kind": "reply",
+  "characters": 133,
+  "attempts": [
+    {
+      "model": "gemini-3.8-flash",
+      "stream": true,
+      "attempt": 1,
+      "status": "success",
+      "elapsed_seconds": 28.672
+    }
+  ],
+  "note": "真实文字接口检查；不代表客户端或专业子会话验收"
+}

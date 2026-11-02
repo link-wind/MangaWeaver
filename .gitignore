@@ -1,0 +1,32 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.env
+.env.*
+!.env.example
+results/
+.DS_Store
+/assets/
+
+# Desktop build outputs
+desktop/node_modules/
+desktop/dist/
+desktop/dist-electron/
+desktop/release/
+desktop/release-ui-review/
+desktop/release-ui-context/
+desktop/release-stream-fix/
+
+desktop/release-settings/
+
+desktop/release-materials/
+
+# Local review tools and diagnostics
+.impeccable/
+.claude-dev-helper/
+*.log
+*.pem
+*.key

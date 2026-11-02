@@ -1,0 +1,45 @@
+{
+  "case_id": "cross-panel",
+  "panels": [
+    {
+      "panel_id": "p001",
+      "image": "images/entry.png",
+      "page_id": "page001",
+      "text": "",
+      "uncertainties": [],
+      "bbox": null
+    },
+    {
+      "panel_id": "p002",
+      "image": "images/impact.png",
+      "page_id": "page001",
+      "text": "",
+      "uncertainties": [],
+      "bbox": null
+    },
+    {
+      "panel_id": "p003",
+      "image": "images/reaction.png",
+      "page_id": "page001",
+      "text": "",
+      "uncertainties": [],
+      "bbox": null
+    }
+  ],
+  "reference_images": [],
+  "characters": [
+    {
+      "character_id": "C1",
+      "description": "蓝衣传球者，在画面左侧"
+    },
+    {
+      "character_id": "C2",
+      "description": "红衣接球者，在画面右侧"
+    },
+    {
+      "character_id": "C3",
+      "description": "绿衣旁观者"
+    }
+  ],
+  "transcript": ""
+}

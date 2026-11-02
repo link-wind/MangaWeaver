@@ -1,0 +1,23 @@
+{
+  "case_id": "key-moment",
+  "shots": [
+    {
+      "shot_id": "s001",
+      "source_panel_ids": [
+        "p001"
+      ],
+      "type": "action",
+      "intent": "展现一次传球的连续过程",
+      "description": "从准备传球发展到球飞至接球者手前",
+      "environment": "球场",
+      "camera": "固定侧面全景",
+      "duration": 8.0,
+      "rationale": "将原漫画的半空瞬间放在动作中段；跨格时把准备与飞行归为同一事件",
+      "character_ids": [
+        "C1",
+        "C2"
+      ],
+      "transition": "cut"
+    }
+  ]
+}

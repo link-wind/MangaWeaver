@@ -1,0 +1,41 @@
+{
+  "case_id": "cross-panel",
+  "shots": [
+    {
+      "shot_id": "s001",
+      "source_panel_ids": [
+        "p001",
+        "p002"
+      ],
+      "type": "action",
+      "intent": "展现一次传球的连续过程",
+      "description": "从准备传球发展到球飞至接球者手前",
+      "environment": "球场",
+      "camera": "固定侧面全景",
+      "duration": 8.0,
+      "rationale": "将原漫画的半空瞬间放在动作中段；跨格时把准备与飞行归为同一事件",
+      "character_ids": [
+        "C1",
+        "C2"
+      ],
+      "transition": "cut"
+    },
+    {
+      "shot_id": "s002",
+      "source_panel_ids": [
+        "p003"
+      ],
+      "type": "static",
+      "intent": "保留反应停顿",
+      "description": "旁观者注视球场，轻微呼吸",
+      "environment": "球场边缘",
+      "camera": "固定近景",
+      "duration": 4.0,
+      "rationale": "表情反应无需重建主要动作，走单首帧路线",
+      "character_ids": [
+        "C3"
+      ],
+      "transition": "cut"
+    }
+  ]
+}

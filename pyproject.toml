@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mangaweaver"
+version = "0.1.0"
+description = "面向漫画改编的镜头编排与动画生成框架"
+requires-python = ">=3.12"
+dependencies = [
+  "google-genai>=1.0,<2",
+  "pydantic>=2.7,<3",
+  "python-dotenv>=1,<2",
+  "Pillow>=10",
+  "requests>=2.31,<3",
+]
+
+[project.optional-dependencies]
+preprocessing = ["torch", "torchvision", "transformers==4.38.0", "numpy", "shapely", "timm", "einops", "matplotlib", "scipy", "networkx"]
+
+local-ocr = ["rapidocr==3.10.0", "onnxruntime"]
+
+book-import = ["mobi==0.4.1", "pypdfium2>=5,<6"]
+
+[project.scripts]
+mangaweaver = "mangaweaver.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/mangaweaver"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"prompts" = "mangaweaver/prompts"
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "prompts", "pyproject.toml", "README.md", "docs/REFERENCE.md"]

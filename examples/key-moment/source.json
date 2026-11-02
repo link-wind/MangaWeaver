@@ -1,0 +1,27 @@
+{
+  "case_id": "key-moment",
+  "panels": [
+    {
+      "panel_id": "p001",
+      "image": "images/impact.png",
+      "page_id": "page001",
+      "text": "",
+      "uncertainties": [
+        "单格画面不能直接确定动作入点"
+      ],
+      "bbox": null
+    }
+  ],
+  "reference_images": [],
+  "characters": [
+    {
+      "character_id": "C1",
+      "description": "蓝衣传球者，在画面左侧"
+    },
+    {
+      "character_id": "C2",
+      "description": "红衣接球者，在画面右侧"
+    }
+  ],
+  "transcript": ""
+}
