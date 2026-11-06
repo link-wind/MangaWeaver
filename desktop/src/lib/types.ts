@@ -9,14 +9,16 @@ export interface EngineEvent {
   data: any;
 }
 export interface RecordFile {
+  revision?: string;
   file: string;
   data?: any;
   error?: string;
 }
 export interface RunData {
+  canvas_revision?:string|null;
   workflow?:AgentSession["workflow"];
   book_page?: {book_id:string;page_id:string;number:number} | null;
-  simulation?: {step: number; completed: boolean; label: string; api_calls: number} | null;
+  simulation?: {step: number; completed: boolean; label: string; api_calls: number; preset?:string; paused?:boolean} | null;
   events?: EngineEvent[];
   original_page?: string;
   directory: string;
@@ -60,8 +62,9 @@ export interface DesktopAPI {
   materials(): Promise<MangaMaterial[]>;
   importMaterial(): Promise<MangaMaterial | null>;
   selectMaterial(id:string): Promise<string>;
+  appVersion():Promise<string>;
   settings(): Promise<Settings>;
-  configure(): Promise<Settings | null>;
+  configure(field?:keyof Settings): Promise<Settings | null>;
   project(action: "create" | "open"): Promise<Project | null>;
   openRunProject(path:string):Promise<Project>;
   attach(): Promise<string | null>;
@@ -72,8 +75,10 @@ export interface DesktopAPI {
   newRun(): Promise<string>;
   run(command: string, params?: Record<string, unknown>): Promise<any>;
   stop(): Promise<void>;
-  media(path: string): Promise<string>;
+  media(path: string): Promise<{url:string;lease:string}>;
+  releaseMedia(lease:string):Promise<void>;
   exportFile(path: string): Promise<boolean>;
+  onCloseRequested(callback:()=>Promise<boolean>):()=>void;
   onEvent(callback: (event: EngineEvent) => void): () => void;
 }
 declare global {
@@ -83,6 +88,8 @@ declare global {
 }
 
 export interface CanvasMessage {
+  run?:string;
+  page_id?:string;
   turn_id?:string;
   id: string;
   role: "user" | "assistant";
@@ -99,8 +106,13 @@ export interface CanvasReference {
   page?:{book_id?:string;page_id?:string;number?:number}; kind:'object'|'image'|'video';
   path:string; signature:string; location:string; stage:string;
 }
-export interface MessageOptions {delivery:'steer'|'follow_up';references:CanvasReference[];}
+export interface MessageOptions {delivery:'steer'|'follow_up';references:CanvasReference[];run?:string;page_id?:string;}
 export interface CanvasState {
+  draft_node?:string;
+  draft_references?:CanvasReference[];
+  draft_delivery?:"steer"|"follow_up";
+  draft_page_id?:string;
+  draft_run?:string;
   view?: CanvasView;
   version: 1;
   page: string;
@@ -110,6 +122,9 @@ export interface CanvasState {
   messages: CanvasMessage[];
 }
 export interface CanvasView {
+  composer?:{text:string;node:string;references:CanvasReference[];delivery:'steer'|'follow_up';page_id:string;run:string};
+  workspace?:{mode:'overview'|'page';page_id?:string};
+  page_views?:Record<string,{viewport?:{x:number;y:number;zoom:number};selected?:string|null}>;
   collapsed_groups: string[];
   collapsed_pages: string[];
   book_collapsed: boolean;

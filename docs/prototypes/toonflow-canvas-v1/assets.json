@@ -1,0 +1,21 @@
+{
+  "purpose": "独立画布视觉稿；不接入正式客户端，不调用模型。",
+  "source_run": "results/iruma-dialogue-page094-ja-20s-6panels",
+  "assets": {
+    "page-094.jpg": "assets/manga/iruma-vol01/image-090.jpg",
+    "panel-01.jpg": "assets/manga/iruma-dialogue-page094-6panels/p001.jpg",
+    "panel-02.jpg": "assets/manga/iruma-dialogue-page094-6panels/p002.jpg",
+    "panel-03.jpg": "assets/manga/iruma-dialogue-page094-6panels/p003.jpg",
+    "panel-04.jpg": "assets/manga/iruma-dialogue-page094-6panels/p004.jpg",
+    "panel-05.jpg": "assets/manga/iruma-dialogue-page094-6panels/p005.jpg",
+    "panel-06.jpg": "assets/manga/iruma-dialogue-page094-6panels/p006.jpg",
+    "frame-01.png": "results/iruma-dialogue-page094-ja-20s-6panels/iter2/storyboard/s001/s001_start/candidate_1.png",
+    "frame-02-start.png": "results/iruma-dialogue-page094-ja-20s-6panels/iter3/storyboard/s002/s002_k0/candidate_1.png",
+    "frame-02-end.png": "results/iruma-dialogue-page094-ja-20s-6panels/iter3/storyboard/s002/s002_k1/candidate_1.png",
+    "frame-03.png": "results/iruma-dialogue-page094-ja-20s-6panels/iter3/storyboard/s003/s003_start/candidate_1.png",
+    "frame-04.png": "results/iruma-dialogue-page094-ja-20s-6panels/iter3/storyboard/s004/s004_start/candidate_1.png",
+    "shot-03.mp4": "results/iruma-dialogue-page094-ja-20s-6panels/video/s003/s003_seg01/candidate_1.mp4"
+  },
+  "review_evidence": "results/iruma-dialogue-page094-ja-20s-6panels/preview_export.json",
+  "note": "素材、分格数、关键帧和镜头03退回原因来自真实运行；对话为依据这些产物整理的交互演示，不是原会话逐字回放。"
+}

@@ -1,8 +1,10 @@
+import { Download,Film } from "lucide-react";
 import { useState } from "react";
-import { Download, Film } from "lucide-react";
+import { Disclosure } from '../components/Disclosure';
 import { Media } from "../components/Media";
+import { Badge } from '../components/ui/badge';
 import { Button } from "../components/ui/button";
-import { filename, reviewRecords } from "../lib/data";
+import { filename,reviewRecords } from "../lib/data";
 import type { RunData } from "../lib/types";
 export function Results({
   run,
@@ -21,13 +23,14 @@ export function Results({
   const [selected, setSelected] = useState(""),
     path = videos.includes(selected) ? selected : videos[0],
     reviews = reviewRecords(run);
+  const isFilm=(path:string)=>/\/(final|preview|clean)\.mp4$/.test(path);
   return (
-    <div className="result-layout">
+    <div className="result-layout specialist-page">
       <div className="result-main">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">SCREENING ROOM</span>
-            <h2>让故事连贯起来</h2>
+
+            <h2>视频结果</h2>
             <p>
               {run.experimental
                 ? "整张故事板实验 · 只读预览"
@@ -46,7 +49,7 @@ export function Results({
             <div className="empty">
               <Film size={30} />
               <h3>视频尚未生成</h3>
-              <p>完成规划审查后，可在“生成”中构建任务。</p>
+              <p>完成规划审查后，可在“视频任务”中构建任务。</p>
             </div>
           )}
         </div>
@@ -63,21 +66,9 @@ export function Results({
             </span>
           </div>
         )}
-        <div className="video-list">
-          {videos.map((p) => (
-            <button
-              key={p}
-              className={path === p ? "selected" : ""}
-              onClick={() => setSelected(p)}
-            >
-              <Film size={15} />
-              <span>{p.slice(run.directory.length + 1)}</span>
-              {p === path && <span className="tag">当前</span>}
-            </button>
-          ))}
-        </div>
-        <div className="subtitle-files">
-          <h3>字幕与对白记录</h3>
+        {[{title:'成片',items:videos.filter(isFilm)},{title:'片段与候选',items:videos.filter(p=>!isFilm(p))}].map(group=>group.items.length>0&&<section className="result-video-group" key={group.title}><h3>{group.title}<small>{group.items.length}</small></h3><div className="video-list">{group.items.map(p=><Button variant="ghost" size="sm" key={p} className={path===p?'selected':''} onClick={()=>setSelected(p)} title={p.slice(run.directory.length+1)}><Film size={15}/><span>{filename(p)}</span>{path===p&&<Badge variant="secondary">当前</Badge>}</Button>)}</div></section>)}
+        <Disclosure className="subtitle-files details" title={<>字幕与对白记录</>}>
+
           <p>中文字幕时间以已有字幕产物为准；规划译文仅作内容对照。</p>
           {run.media
             .filter((p) => p.endsWith(".srt"))
@@ -90,12 +81,12 @@ export function Results({
           {run.records
             .filter((r) => /subtitles|dialogue/.test(r.file))
             .map((r) => (
-              <details key={r.file} className="details">
-                <summary>{r.file}</summary>
+              <Disclosure key={r.file} className="details" title={<>{r.file}</>}>
+
                 <pre>{JSON.stringify(r.data, null, 2)}</pre>
-              </details>
+              </Disclosure>
             ))}
-        </div>
+        </Disclosure>
       </div>
       <aside className="inspector">
         <div className="inspector-title">
@@ -103,12 +94,9 @@ export function Results({
         </div>
         <div className="review-list">
           {reviews.map((r) => (
-            <details
-              key={r.file}
+            <Disclosure key={r.file}
               className="review-item"
-              open={r.file === "video_review.json"}
-            >
-              <summary>
+              defaultOpen={r.file === "video_review.json"} title={<>
                 <span
                   className={`status ${r.data?.accepted === true ? "passed" : r.data?.accepted === false ? "rejected" : ""}`}
                 >
@@ -119,14 +107,15 @@ export function Results({
                       : "报告"}
                 </span>{" "}
                 {r.file}
-              </summary>
+              </>}>
+
               <p>
                 {r.data?.reason ||
                   r.data?.video_review?.reason ||
                   r.data?.status}
               </p>
-              <pre>{JSON.stringify(r.data, null, 2)}</pre>
-            </details>
+              <details><summary>原始报告</summary><pre>{JSON.stringify(r.data, null, 2)}</pre></details>
+            </Disclosure>
           ))}
           {!reviews.length && <p className="muted">尚未审查，不代表已通过。</p>}
         </div>

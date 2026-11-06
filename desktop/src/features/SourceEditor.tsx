@@ -1,20 +1,50 @@
-import { useEffect, useRef, useState } from "react";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, ScanLine } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { ArrowDown,ArrowUp,Save,ScanLine,Trash2 } from "lucide-react";
+import { useEffect,useRef,useState } from "react";
+import { ToggleGroup } from '../components/controls';
+import { Disclosure } from '../components/Disclosure';
 import { Media } from "../components/Media";
+import { Button } from "../components/ui/button";
+import { Field,FieldLabel } from '../components/ui/field';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { ToggleGroupItem } from '../components/ui/toggle-group';
 import type { PanelEdit } from "../lib/types";
+
+type RegisterFlush=(flush:()=>Promise<void>)=>()=>void;
+function useSourceSave(panels:any[],save:((panels:any[])=>Promise<void>)|undefined,registerFlush:RegisterFlush){
+  const initial=useRef(JSON.stringify(panels)),latest=useRef(panels),handler=useRef(save);
+  latest.current=panels;handler.current=save;
+  const pending=useRef<Promise<void>|null>(null);
+  const [error,setError]=useState(''),[saving,setSaving]=useState(false),[saved,setSaved]=useState(false);
+  async function flush(){
+    if(pending.current)await pending.current;
+    const value=latest.current,version=JSON.stringify(value);
+    if(version===initial.current)return;
+    if(!handler.current)throw new Error('来源草稿尚未保存，请先打开项目');
+    setError('');setSaving(true);setSaved(false);
+    const job=handler.current(value);pending.current=job;
+    try{await job;initial.current=version;setSaved(true);}
+    catch(e){setError((e as Error).message);throw e;}
+    finally{if(pending.current===job)pending.current=null;setSaving(false);}
+  }
+  const flushRef=useRef(flush);flushRef.current=flush;
+  useEffect(()=>registerFlush(()=>flushRef.current()),[]);
+  return {flush,error,status:saving?'正在保存…':JSON.stringify(panels)!==initial.current?'尚未保存':saved?'已保存新版本':''};
+}
 
 export function SourceEditor({
   page,
   busy,
   onSave,
   onAuto,
+  registerFlush,
   initial = [],
 }: {
   page: string;
   busy: boolean;
   initial?: PanelEdit[];
-  onSave: (panels: PanelEdit[]) => void;
+  onSave: (panels: PanelEdit[]) => Promise<void>;
+  registerFlush:RegisterFlush;
   onAuto: () => void;
 }) {
   const [panels, setPanels] = useState<PanelEdit[]>(initial),
@@ -22,16 +52,22 @@ export function SourceEditor({
     [start, setStart] = useState<number[] | null>(null),
     [end, setEnd] = useState<number[] | null>(null),
     [selected, setSelected] = useState(0);
+  const save=useSourceSave(panels,onSave,registerFlush);
+  const [mode,setMode]=useState<'browse'|'draw'>(initial.length?'browse':'draw');
   const box = useRef<HTMLDivElement>(null);
   const [url, setUrl] = useState("");
   // Source image needs intrinsic dimensions for pixel-exact crop coordinates.
   useEffect(() => {
     let alive = true;
-    window.manga.media(page).then((url) => {
-      if (alive) setUrl(url);
-    });
+    let lease: string | undefined;
+    setUrl("");
+    window.manga.media(page).then((media) => {
+      if (alive) {lease=media.lease;setUrl(media.url);}
+      else void window.manga.releaseMedia(media.lease);
+    }).catch(()=>{if(alive)setUrl("");});
     return () => {
       alive = false;
+      if (lease) void window.manga.releaseMedia(lease);
     };
   }, [page]);
   const point = (event: React.PointerEvent) => {
@@ -75,24 +111,31 @@ export function SourceEditor({
       : null;
   return (
     <div className="editor-layout">
-      <div className="editor-main">
+      <div className="editor-main" inert={busy}>
         <div className="section-heading">
           <div>
-            <span className="eyebrow">SOURCE EDITOR</span>
-            <h2>从原作开始</h2>
-            <p>拖动画面添加矩形分格，右侧列表顺序即阅读顺序。</p>
+            <h2>分格与对白</h2>
+            <p>{mode==='draw'?'拖动添加分格':'点击已有分格查看和校正'} · {panels.length} 格</p>
           </div>
           <Button onClick={onAuto} disabled={busy}>
             <ScanLine size={15} />
             自动分格 / OCR
           </Button>
         </div>
+        <ToggleGroup className="editor-mode" label="分格编辑模式" value={mode} onValueChange={value=>setMode(value as "browse"|"draw")}><ToggleGroupItem value="browse">浏览与选择</ToggleGroupItem><ToggleGroupItem value="draw">绘制分格</ToggleGroupItem></ToggleGroup>
         <div className="page-canvas">
           <div
             ref={box}
             className="crop-surface"
             onPointerDown={(event) => {
-              if (event.button !== 0 || !size[0]) return;
+              if (busy || event.button !== 0 || !size[0]) return;
+              if(mode==='browse'){
+                const [x,y]=point(event);
+                const hits=panels.map((p,i)=>({p,i})).filter(({p})=>x>=p.bbox[0]&&x<=p.bbox[2]&&y>=p.bbox[1]&&y<=p.bbox[3]);
+                hits.sort((a,b)=>(a.p.bbox[2]-a.p.bbox[0])*(a.p.bbox[3]-a.p.bbox[1])-(b.p.bbox[2]-b.p.bbox[0])*(b.p.bbox[3]-b.p.bbox[1]));
+                if(hits.length)setSelected(hits[0].i);
+                return;
+              }
               event.currentTarget.setPointerCapture(event.pointerId);
               const p = point(event);
               setStart(p);
@@ -152,19 +195,19 @@ export function SourceEditor({
         <div className="inspector-title">
           阅读顺序 <span>{panels.length} 格</span>
         </div>
-        <div className="panel-edit-list">
+        <div className="panel-edit-list" inert={busy}>
           {!panels.length && (
             <p className="muted">在漫画页上拖动，框选第一个分格。</p>
           )}
           {panels.map((p, i) => (
             <div
               key={i}
-              className={`panel-edit ${selected === i ? "active" : ""}`}
+              className={`panel-edit ${selected === i ? "active" : "compact-panel-edit"}`}
               onClick={() => setSelected(i)}
             >
               <div className="row">
                 <strong>分格 {String(i + 1).padStart(2, "0")}</strong>
-                <div className="row">
+                <div className="row" onClick={e=>e.stopPropagation()}>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -187,32 +230,33 @@ export function SourceEditor({
                     size="icon"
                     variant="ghost"
                     title="删除"
-                    onClick={() => setPanels(panels.filter((_, j) => j !== i))}
+                    onClick={() => {setPanels(panels.filter((_, j) => j !== i));setSelected(Math.max(0,Math.min(selected>i?selected-1:selected,panels.length-2)));}}
                   >
                     <Trash2 size={13} />
                   </Button>
                 </div>
               </div>
-              <div className="coordinates">{p.bbox.join(" · ")}</div>
-              <label>
-                说话人
-                <input
+              {selected!==i&&<Button variant="ghost" size="sm" className="panel-summary h-auto justify-start whitespace-normal text-left" onClick={()=>setSelected(i)}>{p.text||'选择后校正对白'}</Button>}
+              {selected===i&&<>
+              <Field><FieldLabel htmlFor={`speaker-${i}`}>说话人</FieldLabel>
+                <Input id={`speaker-${i}`}
+                  disabled={busy}
                   value={p.speaker}
                   placeholder="可留空"
                   onChange={(e) => update(i, { speaker: e.target.value })}
                 />
-              </label>
-              <label>
-                原文对白
-                <textarea
+              </Field>
+              <Field><FieldLabel htmlFor={`dialogue-${i}`}>原文对白</FieldLabel>
+                <Textarea id={`dialogue-${i}`}
+                  disabled={busy}
                   value={p.text}
                   placeholder="校正对白，不确定内容请标注"
                   onChange={(e) => update(i, { text: e.target.value })}
                 />
-              </label>
-              <div className="bbox-inputs">
+              </Field>
+              <Disclosure className="panel-coordinates" title={<>分格坐标</>}><div className="bbox-inputs">
                 {p.bbox.map((n, j) => (
-                  <input
+                  <Input
                     key={j}
                     type="number"
                     aria-label={["左", "上", "右", "下"][j]}
@@ -226,7 +270,8 @@ export function SourceEditor({
                     }
                   />
                 ))}
-              </div>
+              </div></Disclosure>
+              </>}
             </div>
           ))}
         </div>
@@ -234,12 +279,12 @@ export function SourceEditor({
           <Button
             variant="default"
             disabled={busy || !panels.length}
-            onClick={() => onSave(panels)}
+            onClick={() => void save.flush().catch(()=>{})}
           >
             <Save size={15} />
             保存新来源版本
           </Button>
-          <p>保留原始页面与旧运行，修改不会覆盖已生成内容。</p>
+          <p role="status">{save.status||'修改将保存为新来源版本'}</p>{save.error&&<p role="alert">{save.error}</p>}
         </div>
       </aside>
     </div>
@@ -248,30 +293,32 @@ export function SourceEditor({
 export function SourceView({
   source,
   onRevise,
+  registerFlush,
+  busy,
 }: {
   source: any;
-  onRevise?: (panels: any[]) => void;
+  onRevise?: (panels: any[]) => Promise<void>;
+  registerFlush:RegisterFlush;
+  busy:boolean;
 }) {
   const [zoom, setZoom] = useState(1),
     [editing, setEditing] = useState(false),
+    [selected,setSelected]=useState(0),
     [panels, setPanels] = useState<any[]>(source?.panels || []);
+  const save=useSourceSave(panels,onRevise,registerFlush);
   return (
     <div className="padded">
+      {save.error&&<p role="alert">{save.error}</p>}
       <div className="section-heading">
         <div>
-          <span className="eyebrow">MANGA SOURCE</span>
           <h2>原作素材</h2>
           <p>{source?.panels?.length || 0} 格 · 来源与顺序保留</p>
         </div>
         <div className="row">
           {onRevise && (
             <Button
-              onClick={() => {
-                if (editing) {
-                  onRevise(panels);
-                  setEditing(false);
-                } else setEditing(true);
-              }}
+              disabled={busy}
+              onClick={() => {if(editing)void save.flush().then(()=>setEditing(false)).catch(()=>{});else setEditing(true);}}
             >
               {editing ? "保存对白新版本" : "校正对白"}
             </Button>
@@ -281,9 +328,10 @@ export function SourceView({
           </Button>
         </div>
       </div>
+      {save.status&&<p role="status">{save.status}</p>}
       <div className="source-grid">
         {source?.panels?.map((panel: any, i: number) => (
-          <article className="source-tile" key={panel.panel_id}>
+          <article className={`source-tile ${editing&&selected===i?'editing-source-tile':''}`} key={panel.panel_id}>
             <div className="tile-label">
               <span>{String(i + 1).padStart(2, "0")}</span>
               <span>{panel.panel_id}</span>
@@ -291,10 +339,11 @@ export function SourceView({
             <div className="source-image">
               <Media path={panel.image} alt={panel.panel_id} zoom={zoom} />
             </div>
-            {editing ? (
+            {editing&&selected===i ? (
               <label className="padded">
                 说话人：对白
-                <textarea
+                <Textarea
+                  disabled={busy}
                   aria-label={`${panel.panel_id} 对白`}
                   value={panels[i]?.text || ""}
                   onChange={(e) =>
@@ -307,16 +356,16 @@ export function SourceView({
                 />
               </label>
             ) : (
-              <p>{panel.text || "未记录逐格文字"}</p>
+              <><p>{panel.text || "未记录逐格文字"}</p>{editing&&<Button size="sm" variant="ghost" onClick={()=>setSelected(i)}>编辑此格对白</Button>}</>
             )}
           </article>
         ))}
       </div>
       {source?.transcript && (
-        <details className="details">
-          <summary>原文转录</summary>
+        <Disclosure className="details" title={<>原文转录</>}>
+
           <pre>{source.transcript}</pre>
-        </details>
+        </Disclosure>
       )}
     </div>
   );

@@ -7,10 +7,9 @@ from uuid import uuid4
 from ..events import emit, observe
 from ..io import project_run, read_json, write_json, file_signature, signature
 from ..run_lock import run_lock
+from .harness import LABELS as STAGE_LABELS
 
-LABELS = {'preprocess': '漫画分格', 'script': '来源脚本', 'arrangement': '镜头编排',
-          'direction': '演出方案', 'storyboard': '关键画面', 'video': '视频成片',
-          'characters': '角色资料', 'dialogue': '日语对白', 'assembly': '剪辑导出'}
+LABELS = {**STAGE_LABELS, 'characters': '角色资料', 'dialogue': '日语对白', 'assembly': '剪辑导出'}
 LABELS.update({'magi.load': '加载本地分格模型', 'magi.detect': '检测漫画分格', 'magi.ocr': '识别漫画文字',
                'video.submitted': '视频已提交', 'video.query': '等待远端视频', 'video.review': '视频审查', 'tasks': '准备视频任务'})
 ORDER = ['preprocess', 'script', 'arrangement', 'direction', 'storyboard', 'video']
@@ -153,13 +152,19 @@ def submit(request):
             path = folder / f"{item['id']}.json"
         from ..desktop import redact
         write_json(path, redact(item))
-        if request['command'] == 'submit_revision':
+        if request['command'] == 'submit_revision' and 'expected_revision' in request:
+            from ..run_lock import RunBusy
             canvas_path = directory / 'canvas.json'
-            if canvas_path.exists():
-                canvas = read_json(canvas_path)
-                if canvas.get('draft', '').strip() == text:
-                    canvas['draft'] = ''
-                    write_json(canvas_path, canvas)
+            try:
+                with run_lock(directory, 'clear_submitted_draft'):
+                    if canvas_path.exists():
+                        from ..io import signature
+                        canvas = read_json(canvas_path)
+                        if signature(canvas) == request['expected_revision'] and canvas.get('draft', '').strip() == text:
+                            canvas['draft'] = ''
+                            write_json(canvas_path, canvas)
+            except RunBusy:
+                pass  # 已收件；制作占用时保留草稿，不能阻塞或撤销用户要求。
     return {'pending_requests': inbox(project)}
 
 

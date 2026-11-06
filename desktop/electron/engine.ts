@@ -1,6 +1,13 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import type { EngineEvent, Settings } from "../src/lib/types";
 
+function signalGroup(child:ChildProcess, name:NodeJS.Signals) {
+  try {
+    if(process.platform!=="win32"&&child.pid)process.kill(-child.pid,name);
+    else child.kill(name);
+  } catch { /* 进程组已退出 */ }
+}
+
 export class JsonLines {
   private buffer = "";
   constructor(private receive: (event: EngineEvent) => void) {}
@@ -41,9 +48,11 @@ export class Engine {
   ): Promise<any> {
     const cfg = this.settings(),
       id = crypto.randomUUID();
+    // 只读命令（environment、read_run、read_source、read_agent_harness 等）不在此列，
+    // 可直接转发且不阻塞进行中的制作任务。
     const mutation = [
       "import_material", "create_simulation", "simulate",
-      "agent_answer", "agent_compact", "agent_fork", "agent_switch_branch", "agent_follow_up", "agent_resume_task", "agent_next_batch", "agent_message", "agent_continue", "agent_select_page", "agent_open_pages", "agent_run_stage", "load_book_pages",
+      "agent_answer", "agent_compact", "agent_fork", "agent_switch_branch", "agent_follow_up", "agent_resume_task", "agent_next_batch", "agent_message", "agent_continue", "agent_select_page", "agent_open_pages", "agent_run_stage",
       "preprocess",
       "plan",
       "generate",
@@ -51,7 +60,7 @@ export class Engine {
       "save_source",
       "start_canvas",
       "fork_canvas",
-      "save_canvas",
+      "save_canvas", "adopt_candidate", "delete_canvas_nodes",
     ].includes(command);
     const key = String(params.run_dir || params.project || id);
     if (mutation && this.active.size) throw new Error("已有本地操作，请等待完成或停止");
@@ -93,7 +102,7 @@ export class Engine {
           parser.push(chunk);
         } catch (error) {
           protocolError = error as Error;
-          child.kill("SIGTERM");
+          signalGroup(child,"SIGTERM");
         }
       });
       // stderr 可能来自第三方 SDK，故不转发给 renderer 或持久化；错误由脱敏事件返回。
@@ -107,20 +116,22 @@ export class Engine {
         try {
           parser.finish();
         } catch (error) {
-          protocolError = error as Error;
+          if(!this.cancelled.has(child))protocolError = error as Error;
         }
-        if (this.cancelled.has(child)) {
-          if (!terminal) this.receive({version:1,request_id:id,id:`${id}:stopped`,timestamp:new Date().toISOString(),
+        if (protocolError) reject(protocolError);
+        else if (terminal) {
+          if(failed)reject(new Error(this.cancelled.has(child)&&result?.status==='interrupted'
+            ?'本地执行已停止，已保存的进度可继续'
+            :`${result?.code ? `[${result.code}] ` : ""}${result?.message || "引擎执行失败"}`));
+          else resolve(result);
+        }
+        else if (this.cancelled.has(child)) {
+          this.receive({version:1,request_id:id,id:`${id}:stopped`,timestamp:new Date().toISOString(),
             run_dir:typeof params.run_dir === 'string'?params.run_dir:undefined,type:'failed',stage:command,
             data:{status:'interrupted',message:'本地执行已停止，已保存的进度可继续'}});
           reject(new Error('本地执行已停止，已保存的进度可继续'));
         }
-        else if (protocolError) reject(protocolError);
-        else if (!terminal)
-          reject(new Error(`引擎中断（${code}）；已有远端任务仍可能在运行`));
-        else if (failed || code !== 0)
-          reject(new Error(result?.message || "引擎执行失败"));
-        else resolve(result);
+        else reject(new Error(`引擎中断（${code}）；已有远端任务仍可能在运行`));
       });
       child.stdin.on("error", () => {
         /* close reports process launch failures */
@@ -137,23 +148,20 @@ export class Engine {
     });
   }
   async stop() {
-    const signal = (child: ChildProcess, name: NodeJS.Signals) => {
-      try { if (process.platform !== "win32" && child.pid) process.kill(-child.pid, name); else child.kill(name); } catch { /* 已退出 */ }
-    };
     await Promise.all(
       [...this.active.values()].map(
         (child) =>
           new Promise<void>((resolve) => {
             if(child.exitCode!==null||child.signalCode!==null){resolve();return;}
             this.cancelled.add(child);
-            const timer = setTimeout(() => signal(child, "SIGTERM"), 2000);
-            const force = setTimeout(() => signal(child, "SIGKILL"), 6000);
+            const timer = setTimeout(() => signalGroup(child, "SIGTERM"), 2000);
+            const force = setTimeout(() => signalGroup(child, "SIGKILL"), 6000);
             child.once("close", () => {
               clearTimeout(timer);
               clearTimeout(force);
               resolve();
             });
-            signal(child, "SIGINT");
+            signalGroup(child, "SIGINT");
           }),
       ),
     );

@@ -67,9 +67,10 @@ class MiniMax:
             raise ValueError(f"未知视频供应商：{config.video_provider}")
         if config.video_provider == "huanling" and config.minimax_model != "MiniMax-H3":
             raise ValueError("幻灵仅支持标准 MiniMax-H3；本次需显式选择该模型及 768P，不自动改用标准版")
-        key = os.getenv("HUANLING_VIDEO_API_KEY" if config.video_provider == "huanling" else "MINIMAX_API_KEY")
+        key_name = "HUANLING_VIDEO_API_KEY" if config.video_provider == "huanling" else "MINIMAX_API_KEY"
+        key = os.getenv(key_name)
         if not key:
-            raise ValueError("请配置 MINIMAX_API_KEY")
+            raise ValueError(f"请配置 {key_name}")
         self.config = config
         self.session = requests.Session()
         self.key = key

@@ -2,7 +2,7 @@
 from pydantic import Field
 
 from ..io import write_json
-from ..schemas import Model, ReviewReport, unique
+from ..schemas import Model, ReviewReport, ReviewRejected, unique
 
 
 class SpeechCue(Model):
@@ -91,7 +91,7 @@ def prepare(client, plan, jobs, directory):
             write_json(directory / "selected.json", result)
             return result
         feedback = [i.model_dump() for i in report.issues]
-    raise ValueError("日语对白／翻译审查未通过：" + report.reason)
+    raise ReviewRejected("日语对白／翻译审查未通过：" + report.reason)
 
 
 def h3_prompt(plan, job, segment):

@@ -26,7 +26,9 @@ def save(project, session):
 
 def add_message(session, role, text):
     journal = conversation.current()
-    extra = {'turn_id': journal.turn_id} if journal and role == 'assistant' else {}
+    extra = {'turn_id': journal.turn_id} if journal else {}
+    if session.get('active_run'):
+        extra.update(run=session['active_run'], page_id=session.get('active_page_id', ''))
     if journal and role == 'assistant' and text != getattr(journal, 'last_text', None):
         journal.event('text', block_id=uuid4().hex, delta=text, status='completed')
     message={**extra, 'id': uuid4().hex, 'role': role, 'text': text,
@@ -70,6 +72,8 @@ def handle(request, client=None):
             reconcile(project, session)
             if request['command'] == 'agent_follow_up':
                 request = claim_follow_up(project, session, request)
+            if request.get('project_scope'):
+                session.update(active_run='', active_page_id='')
             if request.get('run_dir') and request['command'] not in {'agent_continue', 'agent_resume_task', 'agent_next_batch'}:
                 session['active_run'] = request['run_dir']
                 metadata = Path(request['run_dir']) / 'input/book.json'

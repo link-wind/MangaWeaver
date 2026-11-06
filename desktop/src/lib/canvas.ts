@@ -29,6 +29,7 @@ export type Card = {
   text: string;
   stage: Stage;
   location: string;
+  mediaRevision?:string;
   image?: string;
   video?: string;
   status: "waiting" | "ready" | "rejected";
@@ -84,6 +85,9 @@ export function graph(
   events: EngineEvent[] = [],
   busy = false,
 ): { nodes: CanvasNode[]; edges: Edge[] } {
+  // 历史执行记录仍在对话中；删除前的进度不能再次投影成已清除的产物节点。
+  const deleted = [...events].reverse().find(e => e.stage === 'canvas.delete' && e.data?.status === 'completed');
+  if (deleted) events = events.slice(events.indexOf(deleted) + 1);
   const plan = currentPlan(run),
     source = sourceData(run),
     nodes: CanvasNode[] = [],
@@ -214,10 +218,11 @@ export function graph(
       );
       add(fid, 1480, row + i * 310, {
         kind: "frame",
-        title: asset.keyframe_id,
+        title: `镜头 ${shot.shot_id.replace(/^s0*/, "")} · ${asset.time===0?"起始画面":`${asset.time}s 关键画面`}`,
         subtitle: `${shot.shot_id} · ${asset.time}s`,
         text: asset.description,
         image: asset.image,
+        mediaRevision: asset.image_signature,
         stage: "storyboard",
         location: `${shot.shot_id}:${asset.keyframe_id}`,
         status: reviews.some((r: any) => !r.accepted) ? "rejected" : "ready",
@@ -230,9 +235,10 @@ export function graph(
     );
     tasks.forEach((task: any, i: number) => {
       const vid = `video:${shot.shot_id}:${i}`;
+      const exportReview=run?.records.find(r=>r.file==='preview_export.json')?.data?.review_sources?.[shot.shot_id]?.report;
       add(vid, 1850, row + i * 310, {
         kind: "video",
-        title: `${shot.shot_id} · ${task.id}`,
+        title: `镜头 ${shot.shot_id.replace(/^s0*/, "")} · 视频片段`,
         subtitle: task.simulated ? task.status === "downloaded" ? "本地预览就绪" : "模拟中" :
           ({submitting:"提交中",submitted:"已提交 · 等待结果",succeeded:"已生成 · 下载中",downloaded:"视频已下载"} as Record<string,string>)[task.status] || task.status,
         text: task.simulated ? "模拟视频任务 · 不提交远端" : task.task_id
@@ -241,7 +247,7 @@ export function graph(
         video: task.status === "downloaded" ? task.path : undefined,
         stage: "storyboard",
         location: shot.shot_id,
-        status: task.status === "downloaded" ? "ready" : "waiting",
+        status: exportReview?.accepted===false ? "rejected" : task.status === "downloaded" ? "ready" : "waiting",
         detail: task,
       });
       link(
@@ -257,8 +263,8 @@ export function graph(
   if (final) {
     add("final", 2220, 0, {
       kind: "video",
-      title: run?.simulation ? "模拟预览" : run?.experimental ? "实验预览" : "动画预览",
-      subtitle: run?.simulation ? "本地静帧示例 · 非 AI 成片" : "已有视频 · 保留原生音轨",
+      title: run?.simulation?.preset==='creative' ? "演示视频预览" : run?.simulation ? "模拟预览" : run?.experimental ? "实验预览" : "动画预览",
+      subtitle: run?.simulation?.preset==='creative' ? "历史素材回放 · 含待修订镜头" : run?.simulation ? "本地静帧示例 · 非 AI 成片" : "已有视频 · 保留原生音轨",
       text: "在这里检查画面、声音与字幕。审查结论仍以原始记录为准。",
       video: final,
       stage: "storyboard",
@@ -273,4 +279,13 @@ export function graph(
   }
   for (const node of nodes) node.data.progress = nodeProgress(node, events, busy);
   return { nodes, edges: edges.filter(e => nodes.some(n => n.id === e.source) && nodes.some(n => n.id === e.target)) };
+}
+
+/** 初始工作区只取同一镜头的相邻产物；全流程仍由全览提供。 */
+export function workingSet(nodes:CanvasNode[],run:string,selected?:string|null):CanvasNode[]{
+  const local=nodes.filter(n=>n.data.run===run&&!['book','page','group'].includes(n.data.kind));
+  const focus=local.find(n=>n.id===selected)||local.find(n=>n.data.kind==='video'&&n.data.status==='rejected'&&n.data.location!=='all')||local.find(n=>n.data.kind==='frame'&&n.data.image);
+  if(!focus||focus.data.location==='all')return [];
+  const shot=focus.data.location.split(':')[0];
+  return local.filter(n=>['shot','frame','video'].includes(n.data.kind)&&n.data.location.split(':')[0]===shot);
 }

@@ -18,6 +18,8 @@ test('real events reveal nodes progressively and preserve failure without fabric
   assert.equal(records.find(r => r.label === '来源脚本')?.status, 'failed');
   assert.equal(records.find(r => r.label === '项目运行')?.message, '渠道不可用');
   assert.equal(mergeEvents(events,events).length,events.length);
+  events.push(event('stage','canvas.delete',{status:'completed'},'deleted'));
+  assert.deepEqual(graph(run,state,events,false).nodes.map(n=>n.id),['source']);
 });
 test('interrupted history does not keep spinning or hide blocked Agent tools', () => {
   const events = [event('started','agent_message'),event('stage','agent.tool',{tool:'delegate',call_id:'a',status:'running'})];

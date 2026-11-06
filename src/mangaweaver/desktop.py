@@ -12,8 +12,20 @@ from uuid import uuid4
 
 from .config import Config
 from .events import subscribe
-from .io import read_json, write_json
+from .io import read_json, write_json, signature
 from .run_lock import run_lock
+
+
+class EditConflict(ValueError):
+    code = 'EDIT_CONFLICT'
+
+
+def check_revision(request, path):
+    if 'expected_revision' not in request:
+        return  # 内部制作流程沿用原协议。
+    current = signature(read_json(path)) if path.exists() else None
+    if request['expected_revision'] != current:
+        raise EditConflict('编辑冲突：文件已被其他入口修改，草稿已保留。请重新读取后再编辑。')
 
 
 def redact(value):
@@ -88,7 +100,8 @@ def read_run(directory):
         if path.name not in names or not path.resolve().is_relative_to(directory) or path.stat().st_size > 10_000_000:
             continue
         try:
-            records.append({'file': str(path.relative_to(directory)), 'data': read_json(path)})
+            value = read_json(path)
+            records.append({'file': str(path.relative_to(directory)), 'data': value, 'revision': signature(value)})
         except (ValueError, OSError):
             records.append({'file': str(path.relative_to(directory)), 'error': '无法读取该记录'})
     media = [str(p.resolve()) for p in sorted(directory.rglob('*'))
@@ -103,20 +116,29 @@ def read_run(directory):
             'book_page': read_json(directory / 'input/book.json') if (directory / 'input/book.json').exists() else None,
             'simulation': read_json(directory / 'simulation.json') if (directory / 'simulation.json').exists() else None,
             'events': read_log(directory), 'directory': str(directory), 'original_page': page, 'experimental': (directory / 'EXPERIMENT.json').exists(),
-            'records': records, 'media': media}
+            'records': records, 'media': media,
+            'canvas_revision': next((r.get('revision') for r in records if r['file'] == 'canvas.json'), None)}
 
 
 def read_source(path):
     from .preprocessing.transcript import load_source
-    source = load_source(Path(path))
+    value = read_json(Path(path))
+    source = load_source(Path(path), value)
     editor_path = Path(path).parent / 'editor.json'
     editor = read_json(editor_path) if editor_path.is_file() else None
     if editor:
         editor['page'] = str((editor_path.parent / editor['page']).resolve())
-    return {'source': source.model_dump(mode='json'), 'editor': editor}
+    return {'source': source.model_dump(mode='json'), 'editor': editor, 'revision': signature(value)}
 
 
 def revise_source(request):
+    path = Path(request['source']).resolve()
+    with run_lock(path.parent.parent if path.parent.name == 'source' else path.parent, 'revise_source'):
+        check_revision(request, path)
+        return _revise_source(request)
+
+
+def _revise_source(request):
     from .preprocessing.transcript import load_source
     source = load_source(Path(request['source']))
     updates = request['panels']
@@ -137,6 +159,15 @@ def revise_source(request):
 
 
 def save_source(request):
+    if request.get('base_source'):
+        path = Path(request['base_source']).resolve()
+        with run_lock(path.parent.parent if path.parent.name == 'source' else path.parent, 'save_source'):
+            check_revision(request, path)
+            return _save_source(request)
+    return _save_source(request)
+
+
+def _save_source(request):
     from PIL import Image
     from .preprocessing.transcript import load_source
     from .schemas import Panel, SourceManifest
@@ -201,13 +232,34 @@ def resume_downloads(config, run_dir):
 
 def validate_view(value):
     from pydantic import BaseModel, ConfigDict, Field
+    from typing import Literal
+    class Viewport(BaseModel):
+        model_config = ConfigDict(extra='forbid', allow_inf_nan=False)
+        x: float
+        y: float
+        zoom: float = Field(ge=0.15, le=1.6)
+    class PageView(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+        viewport: Viewport | None = None
+        selected: str | None = None
+    class Workspace(BaseModel):
+        model_config = ConfigDict(extra='forbid')
+        mode: Literal['overview', 'page']
+        page_id: str | None = None
     class View(BaseModel):
         model_config = ConfigDict(extra='forbid')
         collapsed_groups: list[str] = Field(default_factory=list)
         collapsed_pages: list[str] = Field(default_factory=list)
         book_collapsed: bool = False
         positions: dict[str, dict[str, float]] = Field(default_factory=dict)
-    data = View.model_validate(value).model_dump()
+        workspace: Workspace | None = None
+        page_views: dict[str, PageView] = Field(default_factory=dict)
+        composer: dict = Field(default_factory=dict)
+    # 旧版隐藏仅为视图状态；不再应用，也不将它解释为产物删除。
+    data = View.model_validate({k: v for k, v in value.items() if k != 'hidden_nodes'}).model_dump()
+    for field in ('workspace', 'page_views', 'composer'):
+        if field not in value:
+            data.pop(field, None)
     for point in data['positions'].values():
         if set(point) != {'x', 'y'} or not all(__import__('math').isfinite(n) for n in point.values()):
             raise ValueError('画布位置无效')
@@ -226,6 +278,12 @@ def save_canvas(request):
         target: str = "all"
         stage: str = "script"
         status: Literal["draft", "submitted", "completed", "failed"] = "draft"
+        created_at: str = ""
+        references: list[dict] = Field(default_factory=list)
+        run: str = ""
+        page_id: str = ""
+        turn_id: str = ""
+        delivery: Literal["steer", "follow_up"] = "steer"
 
     class Canvas(BaseModel):
         model_config = ConfigDict(extra="forbid")
@@ -233,6 +291,11 @@ def save_canvas(request):
         page: str = ""
         prompt: str = Field(default="", max_length=20000)
         draft: str = Field(default="", max_length=20000)
+        draft_node: str = ''
+        draft_references: list[dict] = Field(default_factory=list)
+        draft_delivery: Literal['steer', 'follow_up'] = 'steer'
+        draft_page_id: str = ''
+        draft_run: str = ''
         positions: dict[str, dict[str, float]] = Field(default_factory=dict)
         messages: list[Message] = Field(default_factory=list)
         view: dict = Field(default_factory=dict)
@@ -245,12 +308,13 @@ def save_canvas(request):
             raise ValueError("画布位置无效")
     path = run_dir / 'canvas.json'
     with run_lock(run_dir, 'save_canvas'):
+        check_revision(request, path)
         if path.exists():
             previous = read_json(path)
             if previous['page'] != data.page or previous['prompt'] != data.prompt:
                 raise ValueError('初始漫画和提示词已绑定；请通过节点反馈修订，或创建新运行更换输入')
         write_json(path, data)
-    return data.model_dump(mode='json')
+    return {**data.model_dump(mode='json'), **({'revision': signature(data.model_dump(mode='json'))} if 'expected_revision' in request else {})}
 
 
 def start_canvas(request):
@@ -302,8 +366,6 @@ def fork_canvas(request):
     prepared = previous / 'source/prepared.json'
     source = load_source(prepared if prepared.exists() else previous / 'source/manifest.json')
     data = read_json(state_file)
-    for asset in data.get('assets', []):
-        asset['image'] = str((previous / asset['image']).resolve())
     if data.get('source'):
         data['source'] = source.model_dump(mode='json')
     canvas = read_json(previous / 'canvas.json') if (previous / 'canvas.json').exists() else {
@@ -311,6 +373,15 @@ def fork_canvas(request):
         'draft': '', 'positions': {}, 'messages': [],
     }
     with run_lock(current, 'fork_canvas'):
+        from .io import file_signature
+        for index, asset in enumerate(data.get('assets', []), 1):
+            image = (previous / asset['image']).resolve()
+            if file_signature(image) != asset['image_signature']:
+                raise ValueError(f"保留关键画面已改变，请先重新审查：{image.name}")
+            target = current / 'retained' / f'frame_{index:04d}{image.suffix.lower()}'
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(image, target)
+            asset['image'] = str(target)
         _record_source(current, source)
         write_json(current / ('planning_draft.json' if state_file.name == 'planning_draft.json' else 'planning_state.json'), data)
         if (previous / 'input/book.json').is_file():
@@ -320,12 +391,15 @@ def fork_canvas(request):
 
 def _dispatch(request):
     command = request['command']
+    if command == 'read_agent_harness':
+        from .agent.harness import STAGES
+        return {'stages': STAGES}
     if command == 'import_material':
         from .preprocessing.import_manga import import_manga
         return import_manga(request['project'], request['source'])
     if command == 'create_simulation':
         from .desktop_simulation import create
-        return create(request['run_dir'])
+        return create(request['run_dir'], creative=request.get('creative', False))
     if request.get('run_dir') and (Path(request['run_dir']) / 'simulation.json').exists():
         if command == 'simulate':
             from .desktop_simulation import run
@@ -341,8 +415,12 @@ def _dispatch(request):
         return value
     if command == 'load_book_pages':
         from .preprocessing.import_manga import load_pages
-        with run_lock(Path(request['project']), command):
-            return load_pages(request['project'], request['book_id'], request['pages'])
+        book_id = request.get('book_id')
+        if not isinstance(book_id, str) or not book_id.startswith('book-') or '/' in book_id or '..' in book_id:
+            raise ValueError('无效书籍')
+        # 缓存解页不修改会话或生产产物，使用书目录锁，允许制作期间浏览。
+        with run_lock(Path(request['project']) / 'sources' / book_id, command):
+            return load_pages(request['project'], book_id, request['pages'])
     if command == 'interrupt_workflow':
         from .agent.tasks import interrupt
         return interrupt(request['project'])
@@ -382,6 +460,15 @@ def _dispatch(request):
         return start_canvas(request)
     if command == 'save_canvas':
         return save_canvas(request)
+    if command in {'preview_canvas_delete', 'delete_canvas_nodes'}:
+        from .desktop_delete import handle
+        return handle(request, delete=command == 'delete_canvas_nodes')
+    if command == 'read_candidates':
+        from .desktop_candidates import candidates
+        return candidates(request['run_dir'], request['keyframe'])
+    if command == 'adopt_candidate':
+        from .desktop_candidates import adopt
+        return adopt(request)
     if command == 'read_run':
         return read_run(request['run_dir'])
     if command == 'read_source':
@@ -487,7 +574,7 @@ def main():
         from .agent.conversation import current as current_conversation
         if current_conversation():
             event['branch_id']=current_conversation().branch_id
-        if request.get('command') in {'simulate', 'preprocess', 'plan', 'generate', 'resume', 'agent_message', 'agent_continue', 'agent_select_page', 'agent_run_stage', 'load_book_pages'}:
+        if request.get('command') in {'simulate', 'preprocess', 'plan', 'generate', 'resume', 'agent_message', 'agent_continue', 'agent_select_page', 'agent_run_stage', 'load_book_pages'} or (request.get('command') == 'delete_canvas_nodes' and current == 'canvas.delete'):
             folders = {str(p) for p in [actual_run, request.get('project')] if p}
             for folder in folders:
                 target = Path(folder) / 'runtime_events.jsonl'
@@ -509,9 +596,9 @@ def main():
             result = dispatch(request)
         send('completed', data=result)
         return 0
-    except (Exception, KeyboardInterrupt) as exc:
-        message = '模拟任务已停止，可点击运行继续' if request.get('command') == 'simulate' and isinstance(exc, KeyboardInterrupt) else str(exc) or '本地执行已停止；远端任务可能仍在运行'
-        send('failed', data={'message': message, 'status': 'interrupted' if isinstance(exc, KeyboardInterrupt) else 'failed'})
+    except (Exception, KeyboardInterrupt, SystemExit) as exc:
+        message = '命令参数无效，请检查输入和制作阶段' if isinstance(exc, SystemExit) else '模拟任务已停止，可点击运行继续' if request.get('command') == 'simulate' and isinstance(exc, KeyboardInterrupt) else str(exc) or '本地执行已停止；远端任务可能仍在运行'
+        send('failed', data={'code': getattr(exc, 'code', None), 'message': message, 'status': 'interrupted' if isinstance(exc, KeyboardInterrupt) else 'failed'})
         return 1
 
 

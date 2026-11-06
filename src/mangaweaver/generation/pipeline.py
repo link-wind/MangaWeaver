@@ -7,6 +7,7 @@ from ..events import emit
 from ..io import file_signature, read_json, signature, write_json
 from . import assembly, tasks, video_review, subtitles
 from ..planning import dialogue
+from ..schemas import ReviewRejected
 
 log = logging.getLogger(__name__)
 
@@ -73,7 +74,7 @@ def run(config, plan, run_dir: Path, dry_run=False):
                     previous_segment if shot.type == "action" else previous_shot, job, speech_map[job.segment_id])
                 write_json(directory / "selected.json", {"video": str(selected), "review": report.model_dump(mode="json")})
                 if not report.accepted:
-                    raise ValueError(f"视频段 {job.segment_id} 未通过：{report.reason}；保留候选供人工处理")
+                    raise ReviewRejected(f"视频段 {job.segment_id} 未通过：{report.reason}；保留候选供人工处理")
                 selected_segments.append(selected)
                 segment_tracks.append(subtitles.from_review(speech_map[job.segment_id], report, selected))
                 previous_segment = selected
@@ -83,7 +84,7 @@ def run(config, plan, run_dir: Path, dry_run=False):
                 _, report = video_review.select(reviewer, plan, shot, {"selected_shot": shot_path},
                     run_dir / "video" / shot.shot_id / "shot_review.json", previous_shot)
                 if not report.accepted:
-                    raise ValueError(f"完整镜头 {shot.shot_id} 未通过接缝／节奏审查：{report.reason}")
+                    raise ReviewRejected(f"完整镜头 {shot.shot_id} 未通过接缝／节奏审查：{report.reason}")
             selected_shots.append(shot_path)
             selected_tracks.append(subtitles.combine(selected_segments, segment_tracks, continuous=shot.type == "action"))
             previous_shot = shot_path

@@ -1,0 +1,438 @@
+{
+  "source": {
+    "case_id": "iruma-dialogue-page094-6panels",
+    "panels": [
+      {
+        "panel_id": "p001",
+        "image": "images/p001.jpg",
+        "page_id": "printed-094",
+        "text": "玩… 我、我不需要。",
+        "uncertainties": [],
+        "bbox": [
+          280,
+          0,
+          1058,
+          1010
+        ]
+      },
+      {
+        "panel_id": "p002",
+        "image": "images/p002.jpg",
+        "page_id": "printed-094",
+        "text": "",
+        "uncertainties": [],
+        "bbox": [
+          0,
+          0,
+          273,
+          1010
+        ]
+      },
+      {
+        "panel_id": "p003",
+        "image": "images/p003.jpg",
+        "page_id": "printed-094",
+        "text": "啊！不喜歡這個零食？那…… 不是不是。",
+        "uncertainties": [],
+        "bbox": [
+          761,
+          1048,
+          1058,
+          1562
+        ]
+      },
+      {
+        "panel_id": "p004",
+        "image": "images/p004.jpg",
+        "page_id": "printed-094",
+        "text": "抱歉，庫菈菈，我…",
+        "uncertainties": [],
+        "bbox": [
+          530,
+          1048,
+          751,
+          1562
+        ]
+      },
+      {
+        "panel_id": "p005",
+        "image": "images/p005.jpg",
+        "page_id": "printed-094",
+        "text": "",
+        "uncertainties": [],
+        "bbox": [
+          420,
+          1048,
+          519,
+          1620
+        ]
+      },
+      {
+        "panel_id": "p006",
+        "image": "images/p006.jpg",
+        "page_id": "printed-094",
+        "text": "嗚…",
+        "uncertainties": [],
+        "bbox": [
+          0,
+          1048,
+          413,
+          1620
+        ]
+      }
+    ],
+    "reference_images": [
+      "images/page.jpg"
+    ],
+    "characters": [
+      {
+        "character_id": "iruma",
+        "description": "铃木入间，蓝色短发与翘起的呆毛，人类圆耳，穿蓝色高领恶魔学校制服，胸前金色圆扣与蓝色领结。"
+      },
+      {
+        "character_id": "clara",
+        "description": "克拉拉，短齐刘海、后侧较长头发，头两侧有盘曲小角，尖耳、尖牙，活泼少女，制服上衣、领结、短裙和怪物形鞋。彩色动画改编配色：绿色头发、浅肤色、淡黄色角、淡黄色上衣、红色领结、深绿色短裙，鞋子为绿色怪物造型；这是本次配色选择，所有镜头保持一致。"
+      }
+    ],
+    "transcript": "第1卷第3话印刷页94完整6格，右至左、上至下。p001右上大格，p002左上窄格，p003右下格，p004下方入间近景，p005其左侧极窄的克拉拉沉默反应格，p006左下双人远近景。p004与p005之间有明确漫画边框，不能当作同一分割画面。p004入间气泡「抱歉，庫菈菈，我…」跨到p005上方，其「我…」仍属于入间，不能重复分配或当作克拉拉发言；p002、p005本身没有新对白。提供整页参考核对跨格气泡与阅读顺序。其他对白请据原图审查。全页同一段入间与库菈菈对话，无可见地点变化；不补写下一页剧情。未知环境配色为改编选择，沿用已确认人物配色。"
+  },
+  "script": {
+    "case_id": "iruma-dialogue-page094-6panels",
+    "characters": [
+      {
+        "character_id": "iruma",
+        "description": "铃木入间，蓝色短发与翘起的呆毛，人类圆耳，穿蓝色高领恶魔学校制服，胸前金色圆扣与蓝色领结。"
+      },
+      {
+        "character_id": "clara",
+        "description": "克拉拉，短齐刘海、后侧较长头发，头两侧有盘曲小角，尖耳、尖牙，活泼少女，制服上衣、领结、短裙和怪物形鞋。彩色动画改编配色：绿色头发、浅肤色、淡黄色角、淡黄色上衣、红色领结、深绿色短裙，鞋子为绿色怪物造型；这是本次配色选择，所有镜头保持一致。"
+      }
+    ],
+    "panels": [
+      {
+        "panel_id": "p001",
+        "environment": "恶魔学校附近的室外草地，地面散落着玩具和糖果。",
+        "description": "入间跪坐在左侧地面上，神情紧张地向后缩着身体拒绝；克拉拉双膝跪在右侧，面带兴奋的笑容，双手捧着装满零食与玩具的箱子递到入间面前。",
+        "facts": [
+          "入间侧身跪坐在左侧草地上，额头有汗珠，张嘴说话，面向克拉拉",
+          "克拉拉跪在右侧，双手托着装满杂物零食的纸盒伸向入间",
+          "地面上散落着布偶熊、糖果等玩具物品",
+          "上方有两个对话气泡"
+        ],
+        "inferences": [
+          "入间对克拉拉突如其来的热情感到不知所措并出言拒绝",
+          "草地改编配色为浅绿色，地面玩具保持鲜艳色彩"
+        ],
+        "uncertainties": [],
+        "dialogue": [
+          {
+            "speaker_id": "clara",
+            "text": "玩…"
+          },
+          {
+            "speaker_id": "iruma",
+            "text": "我、我不需要。"
+          }
+        ],
+        "character_ids": [
+          "iruma",
+          "clara"
+        ]
+      },
+      {
+        "panel_id": "p002",
+        "environment": "恶魔学校室外草地，背景留白。",
+        "description": "克拉拉面部的竖幅特写。她睁大圆圆的眼睛呆呆地看着前方，嘴唇微张，笑容略微僵住。",
+        "facts": [
+          "克拉拉右半边脸部的特写镜头",
+          "克拉拉睁大眼睛，瞳孔放大，嘴微张",
+          "画面右侧被裁切，无台词气泡"
+        ],
+        "inferences": [
+          "克拉拉对入间的拒绝感到意外发愣",
+          "背景改编配色为浅蓝色渐变或留白"
+        ],
+        "uncertainties": [],
+        "dialogue": [],
+        "character_ids": [
+          "clara"
+        ]
+      },
+      {
+        "panel_id": "p003",
+        "environment": "恶魔学校室外草地。",
+        "description": "克拉拉低头看着怀里的零食盒子，神情有些困惑并急忙追问；后景的入间惊慌失措地连连摆手，满头大汗地连忙解释。",
+        "facts": [
+          "克拉拉位于前景右侧半身侧面，低头看向手里的零食盒",
+          "入间位于后景左侧，身形缩小，双手在胸前左右摆动，额头流汗，表情慌张",
+          "克拉拉头顶出现叹号和疑问气泡，下方有入间的反驳气泡"
+        ],
+        "inferences": [
+          "克拉拉以为入间只是不喜欢这种零食，入间慌忙否认以免伤害对方"
+        ],
+        "uncertainties": [],
+        "dialogue": [
+          {
+            "speaker_id": "clara",
+            "text": "…！啊！不喜歡這個零食？那——"
+          },
+          {
+            "speaker_id": "iruma",
+            "text": "不、不是。"
+          }
+        ],
+        "character_ids": [
+          "clara",
+          "iruma"
+        ]
+      },
+      {
+        "panel_id": "p004",
+        "environment": "恶魔学校室外草地，背景留白。",
+        "description": "入间上半身近景。他右手微微抬起置于胸前，满脸冷汗，眼神充满自责与慌张地向克拉拉道歉。",
+        "facts": [
+          "入间正面偏右半身特写，呆毛竖起，额头冒汗，神情愧疚慌张",
+          "入间右手手指微微弯曲抬在胸前",
+          "左上方说话气泡延伸跨越至下一格"
+        ],
+        "inferences": [
+          "入间意识到自己的拒绝可能让克拉拉难过，内心感到非常内疚而结结巴巴地道歉"
+        ],
+        "uncertainties": [],
+        "dialogue": [
+          {
+            "speaker_id": "iruma",
+            "text": "抱歉，庫菈菈，我…"
+          }
+        ],
+        "character_ids": [
+          "iruma"
+        ]
+      },
+      {
+        "panel_id": "p005",
+        "environment": "恶魔学校室外草地。",
+        "description": "极窄的垂直反应格。克拉拉低垂着头，阴影笼罩了上半张脸，看不见眼睛，嘴唇紧闭下撇，气氛低沉。",
+        "facts": [
+          "克拉拉胸部以上的局部特写，位于极窄竖格中",
+          "克拉拉低头，眼睛被刘海与阴影遮挡看不见，嘴角抿起",
+          "上方有上一格入间说话延伸过来的气泡尾部「我…」"
+        ],
+        "inferences": [
+          "克拉拉听到入间的道歉后陷入了失落与难过之中，本格为克拉拉沉默反应格，无克拉拉台词"
+        ],
+        "uncertainties": [],
+        "dialogue": [],
+        "character_ids": [
+          "clara"
+        ]
+      },
+      {
+        "panel_id": "p006",
+        "environment": "恶魔学校室外草地。",
+        "description": "克拉拉背对着镜头低头抽泣，双手紧握成拳；后景的入间跪坐在地上，双手握拳缩在胸前，眼睛变成震惊发愣的圆圈豆豆眼，不知所措。",
+        "facts": [
+          "前景右侧是克拉拉背影，低着头，右拳紧握下垂，背部微耸",
+          "克拉拉身旁浮现带有折线边缘的颤抖对话气泡",
+          "入间在后景左侧跪立着，双手抓在胸前衣领处，满脸冷汗，双眼呈圈圈豆豆眼状僵住"
+        ],
+        "inferences": [
+          "克拉拉开始哭泣，入间彻底慌了神，完全不知道该如何应对女孩的眼泪"
+        ],
+        "uncertainties": [],
+        "dialogue": [
+          {
+            "speaker_id": "clara",
+            "text": "嗚…"
+          }
+        ],
+        "character_ids": [
+          "clara",
+          "iruma"
+        ]
+      }
+    ]
+  },
+  "shot_list": {
+    "case_id": "iruma-dialogue-page094-6panels",
+    "shots": [
+      {
+        "shot_id": "s001",
+        "source_panel_ids": [
+          "p001"
+        ],
+        "type": "static",
+        "intent": "建立人物空间关系，表现克拉拉的热情提议与入间本能的畏缩拒绝。",
+        "description": "阳光洒在草地上，散落着布偶和糖果。克拉拉双膝跪在右侧，热情洋溢地双手托起装满零食与玩具的纸盒递向前方，欢快开口「玩…」；左侧跪坐的入间满脸冷汗，身体下意识向后微缩，神情慌乱地摆手拒绝「我、我不需要。」。",
+        "environment": "恶魔学校室外浅绿色草地，地面散落着彩色包装糖果与棕色布偶熊。",
+        "camera": "双人全景平视略微低角，景深适中，左右两侧分别放置入间与克拉拉。",
+        "duration": 4.0,
+        "rationale": "对应 p001，作为整场戏的建立镜头，单帧构图即可完整展现两人的空间位置与性格反差；4秒时长充足容纳前后两句台词交流，定为 static 镜头。",
+        "character_ids": [
+          "iruma",
+          "clara"
+        ],
+        "transition": "cut"
+      },
+      {
+        "shot_id": "s002",
+        "source_panel_ids": [
+          "p002",
+          "p003"
+        ],
+        "type": "action",
+        "intent": "展现克拉拉由受挫愣住到手忙脚乱找补的过程，以及入间被吓到的慌张反驳。",
+        "description": "前景的克拉拉起初睁大双眼呆愣在原地，笑容凝固；随即她猛然回神，手忙脚乱地低头在纸盒里翻找零食，急切询问「…！啊！不喜歡這個零食？那——」；后景的入间被她的反应惊得手忙脚乱，满头冷汗、双手在胸前拼命左右摆动连声否认「不、不是。」。",
+        "environment": "恶魔学校室外草地，背景柔和虚化。",
+        "camera": "双人中景景深镜头，克拉拉位于前景右侧半身，入间位于后景左侧。",
+        "duration": 8.0,
+        "rationale": "合并 p002 与 p003，将克拉拉面部受挫发愣与随后的翻找追问动作连贯呈现在同一景深镜头中；克拉拉的情绪状态转变与翻找动作需要充裕时间展开，故定为 action 镜头，给予完整的 8 秒双段生成时长。",
+        "character_ids": [
+          "clara",
+          "iruma"
+        ],
+        "transition": "cut"
+      },
+      {
+        "shot_id": "s003",
+        "source_panel_ids": [
+          "p004",
+          "p005"
+        ],
+        "type": "static",
+        "intent": "呈现入间意识到伤害对方后的内疚自责，以及克拉拉情绪陷入低谷的沉重停顿。",
+        "description": "入间近景，右手内疚地收在胸前微颤，额角渗汗，眼神满是自责与慌乱，结巴地道歉「抱歉，庫菈菈，我…」；一旁的克拉拉低垂着头，齐刘海和浓重阴影完全遮掩住双眸，嘴角紧绷下撇，陷入极度失落的沉默。",
+        "environment": "恶魔学校室外草地，明媚阳光与人物沉重内疚的情绪形成反差。",
+        "camera": "入间胸部近景，画面右侧留有过肩微侧带到克拉拉低垂头部的边缘。",
+        "duration": 4.0,
+        "rationale": "遵循审查反馈，将跨格气泡「抱歉，庫菈菈，我…」完整合并至入间的一次表达中，并将 p005 明确作为克拉拉受挫低头的沉默反应，两者在同一近景中完成情绪转折；无需剧烈身体位移，4秒 static 镜头足以表达内疚氛围。",
+        "character_ids": [
+          "iruma",
+          "clara"
+        ],
+        "transition": "cut"
+      },
+      {
+        "shot_id": "s004",
+        "source_panel_ids": [
+          "p006"
+        ],
+        "type": "static",
+        "intent": "展现女孩破防抽泣与入间完全手足无措的戏剧性落差收尾。",
+        "description": "前景右侧克拉拉背对镜头，双肩微耸，双拳在身体两侧紧紧攥起抽泣出声「嗚…」；后景跪立的入间双手抓在胸前衣襟，双眼瞬间化作惊愕呆滞的同心圆豆豆眼，冷汗直流，彻底石化在原地。",
+        "environment": "恶魔学校室外草地。",
+        "camera": "过肩远景，机位位于克拉拉后侧略微偏低，正对后景的入间。",
+        "duration": 4.0,
+        "rationale": "对应 p006，以强烈的空间前后景对比作为戏的高潮与收尾，克拉拉背身抽泣与入间的豆豆眼僵硬反应在一个稳定构图中即可达成绝妙的喜剧效果；4秒 static 镜头给予情绪余韵收束。",
+        "character_ids": [
+          "clara",
+          "iruma"
+        ],
+        "transition": "cut"
+      }
+    ]
+  },
+  "directions": [
+    {
+      "shot_id": "s002",
+      "entry": "镜头切入双人景深景别，前景右侧的克拉拉维持被拒绝后的发愣神态，瞳孔放大呆滞，笑容僵在脸上；后景左侧跪坐的入间正忐忑不安地观察她的反应。",
+      "source_moment": "克拉拉短暂愣神后猛然回过神来，误以为入间只是挑食，急迫慌乱地低头在怀里的纸盒中翻找零食并急切追问；后景的入间被她的过激反应吓到，满头大汗疯狂摆手。",
+      "exit": "克拉拉抓起零食箱中的零食急切递向前方追问，后景入间双手在胸前拼命挥舞摇摆、身体微缩连声慌乱解释，镜头在两人一惊一乍的滑稽拉扯高潮处切出。",
+      "rhythm": "前 3 秒以凝固的沉默发愣形成冷场停顿，第 4 秒克拉拉骤然回神动作突起，后半段翻找与慌乱摆手形成快节奏的滑稽反差并推向情绪高潮。",
+      "anchors": [
+        {
+          "keyframe_id": "s002_k0",
+          "time": 0.0,
+          "role": "entry",
+          "description": "统一双人景深机位。前景右侧半身的克拉拉睁圆双眼呆立发愣，嘴角笑容僵固，双手端着的杂物箱静止在身前；后景左侧跪坐的入间神情紧绷忐忑，试探性地看着发呆的克拉拉。",
+          "source_panel_ids": [
+            "p002"
+          ],
+          "inferred": false
+        },
+        {
+          "keyframe_id": "s002_k1",
+          "time": 8.0,
+          "role": "exit",
+          "description": "同景深机位下，前景克拉拉猛然低头，一只手在箱子里手忙脚乱抓出一包零食急切往前递，张嘴大声追问；后景入间吓得呆毛竖起、满脸冷汗，双手提到胸前大幅度左右快速摆动连声反驳，身形向后微缩。",
+          "source_panel_ids": [
+            "p003"
+          ],
+          "inferred": false
+        }
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "keyframe_id": "s001_start",
+      "shot_id": "s001",
+      "time": 0.0,
+      "image": "images/s001_start.jpg",
+      "description": "阳光洒在草地上，散落着布偶和糖果。克拉拉双膝跪在右侧，热情洋溢地双手托起装满零食与玩具的纸盒递向前方，欢快开口「玩…」；左侧跪坐的入间满脸冷汗，身体下意识向后微缩，神情慌乱地摆手拒绝「我、我不需要。」。",
+      "source_panel_ids": [
+        "p001"
+      ],
+      "plan_signature": "a53e2803e918bb7b7c159e0ff464e8638d43febcac40903e386c97b8de6c94f4",
+      "image_signature": "6b19ccaa4e6ccee2cb1ccfb29c4989dba8a17d599fa70c881e6db239dd6ef2b9"
+    },
+    {
+      "keyframe_id": "s002_k0",
+      "shot_id": "s002",
+      "time": 0.0,
+      "image": "images/s002_k0.jpg",
+      "description": "统一双人景深机位。前景右侧半身的克拉拉睁圆双眼呆立发愣，嘴角笑容僵固，双手端着的杂物箱静止在身前；后景左侧跪坐的入间神情紧绷忐忑，试探性地看着发呆的克拉拉。",
+      "source_panel_ids": [
+        "p002"
+      ],
+      "plan_signature": "107b7d66379199d60261f43c8198a46f43be0c52541f21ecdf7ee4f3c7ae97f3",
+      "image_signature": "0cdde82782a0d00fbe02ee6a5f634e3fc43b0c8910eafdabfb900b5a703b091e"
+    },
+    {
+      "keyframe_id": "s002_k1",
+      "shot_id": "s002",
+      "time": 8.0,
+      "image": "images/s002_k1.jpg",
+      "description": "同景深机位下，前景克拉拉猛然低头，一只手在箱子里手忙脚乱抓出一包零食急切往前递，张嘴大声追问；后景入间吓得呆毛竖起、满脸冷汗，双手提到胸前大幅度左右快速摆动连声反驳，身形向后微缩。",
+      "source_panel_ids": [
+        "p003"
+      ],
+      "plan_signature": "107b7d66379199d60261f43c8198a46f43be0c52541f21ecdf7ee4f3c7ae97f3",
+      "image_signature": "cadc2f8e248e6dc220625f1897ebeea679400d3d1fea4e03f7a059187275dfff"
+    },
+    {
+      "keyframe_id": "s003_start",
+      "shot_id": "s003",
+      "time": 0.0,
+      "image": "images/s003_start.jpg",
+      "description": "入间近景，右手内疚地收在胸前微颤，额角渗汗，眼神满是自责与慌乱，结巴地道歉「抱歉，庫菈菈，我…」；一旁的克拉拉低垂着头，齐刘海和浓重阴影完全遮掩住双眸，嘴角紧绷下撇，陷入极度失落的沉默。",
+      "source_panel_ids": [
+        "p004",
+        "p005"
+      ],
+      "plan_signature": "1186fe7ad12e3dbdfe8ef767823a84223226428b38ee035252695d6cc2fc736e",
+      "image_signature": "accf20eb0c4e362f24ec8bf9b3b44383bac3a579c3be91339960f4df47a8e325"
+    },
+    {
+      "keyframe_id": "s004_start",
+      "shot_id": "s004",
+      "time": 0.0,
+      "image": "images/s004_start.jpg",
+      "description": "前景右侧克拉拉背对镜头，双肩微耸，双拳在身体两侧紧紧攥起抽泣出声「嗚…」；后景跪立的入间双手抓在胸前衣襟，双眼瞬间化作惊愕呆滞的同心圆豆豆眼，冷汗直流，彻底石化在原地。",
+      "source_panel_ids": [
+        "p006"
+      ],
+      "plan_signature": "bc8b64ceed79980d4daa92d28fbba42979919f7e8570ab783c2cafa9ac21e85e",
+      "image_signature": "aa6d286d1f5c87f6a14b6298df7c75cecb1b2da66b1bcf32c34f7b5a9c8b83ba"
+    }
+  ],
+  "reviews": [],
+  "page": "images/page.jpg",
+  "videos": {
+    "s001": "videos/s001.mp4",
+    "s002": "videos/s002.mp4",
+    "s003": "videos/s003.mp4",
+    "s004": "videos/s004.mp4"
+  },
+  "preview": "videos/preview.mp4"
+}

@@ -3,6 +3,7 @@ from pathlib import Path
 from uuid import uuid4
 from ..io import project_run, read_json, write_json
 from ..run_lock import run_lock
+from ..schemas import ReviewRejected
 
 STAGES = ['script', 'arrangement', 'direction', 'storyboard']
 TOOLS = {
@@ -195,9 +196,7 @@ def execute(project, session, action, request):
             dispatch({'command': 'plan', 'run_dir': str(directory), 'until_stage': stage,
                       'from_stage': stage if a.revise else None, 'location': a.location,
                       'feedback': a.goal, 'env_file': request.get('env_file')})
-        except ValueError as exc:
-            if not str(exc).startswith('已达规划轮次上限'):
-                raise
+        except ReviewRejected as exc:
             result = read_state(session)
             return {'status': 'blocked', 'summary': str(exc), 'issues': [r for r in result['reviews'] if not r['accepted']],
                     'artifacts': [str(directory)], 'state': result}

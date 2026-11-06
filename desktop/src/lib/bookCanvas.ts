@@ -12,21 +12,22 @@ function summary(nodes:CanvasNode[]): Pick<Card,'status'|'progress'> {
   return {progress,status:progress==='failed'?'rejected':progress==='completed'?'ready':'waiting'};
 }
 /** 纯视图投影：保留原业务节点，折叠只重定向显示连线。 */
-export function bookGraph(branches:PageBranch[], active:string, view:CanvasView, events:EngineEvent[], busy:boolean, book?:Book) {
+export function bookGraph(branches:PageBranch[], active:string, view:CanvasView, events:EngineEvent[], busy:boolean, book?:Book, singlePage=false) {
+  if(singlePage)branches=branches.filter(branch=>branch.directory===active);
   const nodes:CanvasNode[]=[], edges:Edge[]=[], logical:CanvasNode[]=[];
   let top=0;
   for (const branch of branches) {
     const directory=branch.directory;
     const raw = graph(branch.run||null, branch.state||canvasState(branch.run||null), events.filter(e=>e.run_dir===directory), busy && events.at(-1)?.run_dir===directory);
     const prefix=(id:string)=>nodeKey(directory,id,book);
-    const offset={x:book?370:0,y:book?top+90:0};
+    const offset={x:book&&!singlePage?370:0,y:book&&!singlePage?top+90:0};
     const pageId=`page:${directory}`;
-    const pageCollapsed=!!book && view.collapsed_pages.includes(directory);
+    const pageCollapsed=!!book && !singlePage && view.collapsed_pages.includes(directory);
     for (const n of raw.nodes) logical.push({...n,id:prefix(n.id),data:{...n.data,run:directory,baseId:n.id,pageNumber:branch.number}});
     const aggregate=summary(raw.nodes);
     const pageStatus=aggregate.progress==='running'||aggregate.progress==='failed'?aggregate:
       branch.caption==='已有成片'||branch.run?.media.some(p=>p===`${directory}/final.mp4`)?{status:'ready' as const,progress:'completed' as const}:{status:'waiting' as const,progress:'waiting' as const};
-    if (book) nodes.push({id:pageId,type:'artifact',position:view.positions[pageId]||{x:0,y:top+90},data:{
+    if (book&&!singlePage) nodes.push({id:pageId,type:'artifact',position:view.positions[pageId]||{x:0,y:top+90},data:{
       kind:'page',title:branch.number?`第 ${branch.number} 页`:'独立运行',subtitle:`${directory===active?'当前 · ':''}${branch.caption || (branch.run?'已展开':'展开查看进度')}`,text:branch.run ? `${raw.nodes.length} 个内容节点` : '展开查看已有进度',
       image:branch.thumbnail,run:directory,stage:'script',location:'all',collapsed:pageCollapsed,...pageStatus,pageNumber:branch.number,
     }});
@@ -54,11 +55,11 @@ export function bookGraph(branches:PageBranch[], active:string, view:CanvasView,
       edges.push({...edge,id:`${source}>${target}`,source,target,
         sourceHandle:redirect.has(edge.source)?undefined:edge.sourceHandle,targetHandle:redirect.has(edge.target)?undefined:edge.targetHandle});
     }
-    if (book && raw.nodes.some(n=>n.id==='source')) edges.push({id:`${pageId}:source`,source:pageId,target:prefix('source'),type:'smoothstep'});
+    if (book && !singlePage && raw.nodes.some(n=>n.id==='source')) edges.push({id:`${pageId}:source`,source:pageId,target:prefix('source'),type:'smoothstep'});
     const branchNodes=nodes.filter(n=>n.data.run===directory);
     top=Math.max(top+620,...branchNodes.map(n=>n.position.y+(n.data.kind==='source'?550:n.data.kind==='group'&&!n.data.collapsed?50:290)))+160;
   }
-  if (book) {
+  if (book&&!singlePage) {
     nodes.unshift({id:`book:${book.id}`,type:'artifact',position:view.positions[`book:${book.id}`]||{x:-650,y:0},data:{kind:'book',title:book.name,subtitle:`${book.page_count} 页 · 文件页序`,text:'',book,
       collapsed:view.book_collapsed,stage:'script',location:'all',status:'ready',progress:'completed'}});
     for (const n of nodes.filter(n=>n.data.kind==='page')) edges.push({id:`book:${n.id}`,source:`book:${book.id}`,target:n.id,type:'smoothstep'});

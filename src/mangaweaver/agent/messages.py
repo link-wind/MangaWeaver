@@ -68,10 +68,13 @@ def receive(project, session, request, parent):
                 from .references import objects
                 baseline = list(objects(project, brief['run']).values())
             try:
-                decision = client.json('agent/message.md', {'message': item['text'], 'delivery': item['delivery'],
-                    'context': item['context'], 'references': refs, 'task': task, 'state': state,
-                    'input_objects': baseline}, MessageDecision,
-                    [str(Path(project) / r['path']) for r in refs if r['kind'] == 'image' and r['purpose'] == 'reference'])
+                try:
+                    decision = client.json('agent/message.md', {'message': item['text'], 'delivery': item['delivery'],
+                        'context': item['context'], 'references': refs, 'task': task, 'state': state,
+                        'input_objects': baseline}, MessageDecision,
+                        [str(Path(project) / r['path']) for r in refs if r['kind'] == 'image' and r['purpose'] == 'reference'])
+                except ValueError as exc:
+                    raise RuntimeError(f'消息模型响应失败：{exc}') from exc
             finally:
                 if owned:
                     client.save_usage(Path(project) / 'message_usage.json')

@@ -1,8 +1,14 @@
+import { ArrowUpRight,Send,ZoomIn } from "lucide-react";
 import { useState } from "react";
-import { ArrowUpRight, Send, ZoomIn } from "lucide-react";
-import { Button } from "../components/ui/button";
+import { Select } from '../components/controls';
+import { Disclosure } from '../components/Disclosure';
 import { Media } from "../components/Media";
-import { planVersions, currentPlan, sourceData } from "../lib/data";
+import { Badge } from '../components/ui/badge';
+import { Button } from "../components/ui/button";
+import { Field,FieldLabel } from '../components/ui/field';
+import { InputGroup,InputGroupAddon,InputGroupTextarea } from '../components/ui/input-group';
+import { SelectItem } from '../components/ui/select';
+import { currentPlan,planVersions,sourceData } from "../lib/data";
 import type { RunData } from "../lib/types";
 
 export function Planning({
@@ -39,14 +45,14 @@ export function Planning({
       r.scope.endsWith(`:${shot.shot_id}`),
   );
   return (
-    <div className="planning-layout">
+    <div className="planning-layout specialist-page">
       <div className="shot-list">
         <div className="inspector-title">
           镜头编排 <span>{shots.length} 镜</span>
         </div>
         {shots.map((s: any, i: number) => (
-          <button
-            className={`shot-item ${shot?.shot_id === s.shot_id ? "selected" : ""}`}
+          <Button variant="ghost" size="sm"
+            className={`shot-item h-auto justify-start whitespace-normal py-3 ${shot?.shot_id === s.shot_id ? "selected" : ""}`}
             key={s.shot_id}
             onClick={() => setSelected(s.shot_id)}
           >
@@ -61,7 +67,7 @@ export function Planning({
               <small>{s.source_panel_ids.join(" → ")}</small>
             </div>
             <ArrowUpRight size={13} />
-          </button>
+          </Button>
         ))}
         {!shots.length && (
           <p className="muted padded">
@@ -79,32 +85,32 @@ export function Planning({
       <div className="planning-main">
         <div className="section-heading">
           <div>
-            <span className="eyebrow">SHOT DEVELOPMENT</span>
-            <h2>{shot?.intent || "规划与脚本"}</h2>
+
+            <h2>镜头规划</h2>
             <p>
               {shot?.shot_id || "等待规划"}{" "}
               {shot?.type === "action" ? "／动作镜头" : "／镜头详情"}
             </p>
           </div>
-          <select
-            aria-label="规划版本"
-            value={version}
-            onChange={(e) => setVersion(e.target.value)}
+          <Select
+            label="规划版本"
+            value={version || 'current'}
+            onValueChange={value=>setVersion(value==='current'?'':value)}
           >
-            <option value="">当前版本</option>
+            <SelectItem value="current">当前版本</SelectItem>
             {versions.map((v) => (
-              <option key={v.file} value={v.file}>
-                {v.file}
-              </option>
+              <SelectItem key={v.file} value={v.file}>
+                {v.file==='production.json'?'已通过规划':v.file==='planning_draft.json'?'当前草案':v.file.replace(/\.json$/,'').replaceAll('/',' · ')}
+              </SelectItem>
             ))}
-          </select>
+          </Select>
         </div>
         {shot && (
           <>
             <div className="shot-copy">
-              <span className="tag">{shot.duration} 秒</span>
-              <span className="tag">{shot.camera}</span>
-              <p>{shot.description}</p>
+              <Badge variant="secondary">{shot.duration} 秒</Badge>
+              <Badge variant="secondary">{shot.camera}</Badge>
+              <h3>{shot.intent}</h3><p>{shot.description}</p>
               <small>{shot.rationale}</small>
             </div>
             <div className="comparison-heading">
@@ -142,7 +148,7 @@ export function Planning({
                 </div>
                 {assets.map((a: any) => (
                   <figure className="anchor-frame" key={a.keyframe_id}>
-                    <Media path={a.image} alt={a.description} zoom={zoom} />
+                    <Media path={a.image} revision={a.image_signature} alt={a.description} zoom={zoom} />
                     <figcaption>
                       <b>{a.time}s</b> {a.keyframe_id}
                       <p>{a.description}</p>
@@ -161,7 +167,7 @@ export function Planning({
                 {direction.anchors?.map((a: any) => (
                   <div className="anchor-row" key={a.keyframe_id}>
                     <b>{a.time}s</b>
-                    <span className="tag">{a.role}</span>
+                    <Badge variant="secondary">{a.role}</Badge>
                     <span>{a.description}</span>
                   </div>
                 ))}
@@ -170,8 +176,8 @@ export function Planning({
           </>
         )}
         {plan?.script && (
-          <details className="details">
-            <summary>来源脚本与对白</summary>
+          <Disclosure className="details" title={<>来源脚本与对白</>}>
+
             {plan.script.panels?.map((p: any) => (
               <div key={p.panel_id}>
                 <b>{p.panel_id}</b>
@@ -183,7 +189,7 @@ export function Planning({
                 ))}
               </div>
             ))}
-          </details>
+          </Disclosure>
         )}
       </div>
       <aside className="inspector">
@@ -194,11 +200,9 @@ export function Planning({
           {reviews.map((r: any, i: number) => (
             <div className="review-item" key={i}>
               <div className="row">
-                <span
-                  className={`status ${r.accepted ? "passed" : "rejected"}`}
-                >
-                  {r.accepted ? "通过" : "需修订"}
-                </span>
+                <Badge variant={r.accepted===false?"destructive":"secondary"}>
+                  {r.accepted===true?"通过":r.accepted===false?"需修订":"未审查"}
+                </Badge>
                 <small>{r.scope || "审查"}</small>
               </div>
               <p>{r.reason}</p>
@@ -214,32 +218,31 @@ export function Planning({
           {!reviews.length && <p className="muted">尚无审查结果。</p>}
         </div>
         <div className="feedback">
-          <label>
-            提交到阶段
-            <select value={stage} onChange={(e) => setStage(e.target.value)}>
-              <option value="script">来源脚本</option>
-              <option value="arrangement">镜头编排</option>
-              <option value="direction">动作演出</option>
-              <option value="storyboard">关键画面</option>
-            </select>
-          </label>
-          <div className="feedback-composer text-composer">
-          <textarea
+          <Field><FieldLabel>提交到阶段</FieldLabel>
+            <Select label="修订阶段" value={stage} onValueChange={setStage}>
+              <SelectItem value="script">来源脚本</SelectItem>
+              <SelectItem value="arrangement">镜头编排</SelectItem>
+              <SelectItem value="direction">动作演出</SelectItem>
+              <SelectItem value="storyboard">关键画面</SelectItem>
+            </Select>
+          </Field>
+          <InputGroup className="feedback-composer">
+          <InputGroupTextarea aria-label="阶段修订要求"
             placeholder="例如：保持双方视线关系，为入间的回应留出停顿。"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
           />
-          <div className="reply-actions">
+          <InputGroupAddon align="block-end" className="justify-end">
           <Button
             variant="default"
             disabled={busy || run.experimental || !feedback.trim()}
             onClick={() => onFeedback(stage, feedback)}
           >
             <Send size={14} />
-            提交修订 · 付费
+            修订所选阶段 · 付费
           </Button>
-          </div>
-          </div>
+          </InputGroupAddon>
+          </InputGroup>
           <small>
             由原有 Agent
             修订与审查，可能产生模型费用。已有视频任务时须新建运行。

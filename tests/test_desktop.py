@@ -12,6 +12,32 @@ from mangaweaver.run_lock import run_lock
 
 
 class DesktopBoundaryTest(unittest.TestCase):
+    def test_creative_demo_pauses_at_review_and_exports_only_existing_media(self):
+        from unittest.mock import patch
+        from mangaweaver.desktop_simulation import CREATIVE_FIXTURE, create, run
+        with tempfile.TemporaryDirectory() as temp, patch('socket.socket.connect', side_effect=AssertionError('演示不可联网')):
+            root = Path(temp)
+            create(root, creative=True)
+            from mangaweaver.desktop import save_canvas
+            canvas = json.loads((root/'canvas.json').read_text())
+            saved = save_canvas({'run_dir': str(root), 'canvas': canvas})
+            self.assertEqual(saved['messages'][0]['references'], canvas['messages'][0]['references'])
+            self.assertEqual(saved['messages'][0]['created_at'], canvas['messages'][0]['created_at'])
+            paused = run(root, delay=0)
+            self.assertTrue(paused['paused'])
+            snapshot = read_run(root)
+            self.assertEqual(len(next(r['data'] for r in snapshot['records'] if r['file']=='source/manifest.json')['panels']), 6)
+            self.assertFalse(snapshot['simulation']['completed'])
+            self.assertFalse((root/'simulation.mp4').exists())
+            feedback = [a for task in snapshot['workflow']['tasks'] for a in task['activities']
+                        if a['actor']=='video.reviewer' and a.get('accepted') is False]
+            self.assertEqual(feedback[0]['target'], 's003')
+            self.assertIn('本地预设', feedback[0]['issues'][0]['evidence'])
+            run(root, delay=0)
+            self.assertTrue(read_run(root)['simulation']['completed'])
+            self.assertEqual((root/'simulation.mp4').read_bytes(), (CREATIVE_FIXTURE/'videos/preview.mp4').read_bytes())
+            self.assertEqual(read_run(root)['simulation']['api_calls'], 0)
+
     def test_simulation_stops_resumes_and_cannot_generate(self):
         import shutil
         from unittest.mock import patch

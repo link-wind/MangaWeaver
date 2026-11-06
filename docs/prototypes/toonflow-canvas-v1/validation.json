@@ -1,0 +1,54 @@
+{
+  "viewport": {
+    "width": 1480,
+    "height": 980,
+    "images": [],
+    "bodyOverflow": false,
+    "scene": {
+      "x": 172,
+      "y": 56,
+      "width": 926,
+      "height": 924,
+      "top": 56,
+      "right": 1098,
+      "bottom": 980,
+      "left": 172
+    },
+    "canvas": {
+      "x": 172,
+      "y": 56,
+      "width": 926,
+      "height": 924,
+      "top": 56,
+      "right": 1098,
+      "bottom": 980,
+      "left": 172
+    },
+    "composer": {
+      "x": 1116,
+      "y": 798.5,
+      "width": 347,
+      "height": 146,
+      "top": 798.5,
+      "right": 1463,
+      "bottom": 944.5,
+      "left": 1116
+    }
+  },
+  "checks": {
+    "collaboration": true,
+    "nodeLocation": true,
+    "panelsExpanded": true,
+    "panelOrder": true,
+    "videoModal": true,
+    "modalClosed": true,
+    "sidebarCollapsed": true
+  },
+  "browserErrors": [],
+  "video": {
+    "duration": 4.458333,
+    "width": 1344,
+    "height": 768
+  },
+  "validationTime": "2026-11-04T15:52:29.963Z"
+}

@@ -7,6 +7,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_valid
 ID = str
 
 
+class ReviewRejected(ValueError):
+    """专业审查已耗尽当前修订次数，保留产物供明确处理。"""
+
+
 def unique(values, label):
     if len(values) != len(set(values)):
         raise ValueError(f"{label} 包含重复 ID")

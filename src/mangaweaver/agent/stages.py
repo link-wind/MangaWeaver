@@ -5,22 +5,23 @@ from ..events import emit
 from ..schemas import AgentAction
 from .tools import read_state
 from .workflow import run_tool as execute
+from .harness import STAGES
 
-LABELS = {'preprocess': '漫画分格', 'script': '来源脚本', 'arrangement': '镜头编排',
-          'direction': '演出方案', 'storyboard': '关键画面', 'video': '视频成片'}
+LABELS = {stage['id']: stage['label'] for stage in STAGES}
 
 
 def completed(state, stage):
+    # 各分支对应 harness.STAGES 中的 gate，展示清单只描述不驱动，执行真相保持在这里。
     if stage == 'preprocess':
-        return state['has_source']
+        return state['has_source']  # gate: 整页已分格并识别文字
     if stage == 'storyboard':
-        return state['has_production']
+        return state['has_production']  # gate: 关键画面已生成
     if stage == 'video':
-        return (Path(state['run']) / 'final.mp4').is_file()
+        return (Path(state['run']) / 'final.mp4').is_file()  # gate: 视频成片已生成
     reviews = [r for r in state['reviews'] if r.get('scope', '').split(':')[0] == stage]
     present = state['script_ready'] if stage == 'script' else bool(state['shot_list']) if stage == 'arrangement' else bool(state['directions'])
     if stage == 'direction' and state['shot_list'] and not any(s['type'] == 'action' for s in state['shot_list']['shots']):
-        return True
+        return True  # gate: 无动作镜头时自动通过
     return present and bool(reviews) and all(r['accepted'] for r in reviews)
 
 

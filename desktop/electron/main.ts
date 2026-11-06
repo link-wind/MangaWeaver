@@ -19,7 +19,7 @@ import { join, resolve, relative, dirname, basename, extname } from "node:path";
 import { Engine } from "./engine";
 import { scanLocalRuns } from "./library";
 import { projectForRun } from './projects';
-import { MediaFiles } from "./media";
+import { authorizedPath, MediaFiles } from "./media";
 import type { Project, Settings, RunData, MangaMaterial } from "../src/lib/types";
 
 protocol.registerSchemesAsPrivileged([
@@ -43,7 +43,11 @@ const roots = new Set<string>(),
   media = new MediaFiles();
 const engine = new Engine(
   () => settings,
-  (event) => window?.webContents.send("engine-event", event),
+  (event) => {
+    if (!window || window.isDestroyed() || window.webContents.isDestroyed()) return;
+    try { window.webContents.send("engine-event", event); }
+    catch { console.error("客户端事件未送达，运行结果继续保留在本地"); }
+  },
 );
 const settingsPath = () => join(app.getPath("userData"), "settings.json");
 const inside = (path: string, root: string) => {
@@ -63,10 +67,7 @@ async function authorize(path: string) {
 }
 async function check(path: unknown) {
   if (typeof path !== "string") throw new Error("缺少有效文件路径");
-  const real = await realpath(path);
-  if (!files.has(real) && ![...roots].some((root) => inside(real, root)))
-    throw new Error("路径未授权，请使用文件选择器");
-  return real;
+  return authorizedPath(path, roots, files);
 }
 async function saveProject() {
   if (!project) return;
@@ -87,30 +88,30 @@ async function choose(
   return result.canceled ? null : result.filePaths[0];
 }
 async function hydrateRun(data: RunData) {
-  if (data.original_page) await authorize(data.original_page);
-  for (const path of data.media) await authorize(path);
+  const allowReference = async (path:string) => authorize(await check(path));
+  if (data.original_page) await allowReference(data.original_page);
+  for (const path of data.media) await allowReference(path);
   for (const record of data.records) {
     if (
       record.file === "canvas.json" &&
       record.data?.page &&
       existsSync(record.data.page)
     )
-      await authorize(record.data.page);
-    const data = record.data;
+      await allowReference(record.data.page);
+    const value = record.data;
     const source =
-      data?.source ||
+      value?.source ||
       (record.file.endsWith("manifest.json") ||
       record.file.endsWith("prepared.json")
-        ? data
+        ? value
         : undefined);
-    for (const item of [...(source?.panels || []), ...(data?.assets || [])]) {
+    for (const item of [...(source?.panels || []), ...(value?.assets || [])]) {
       if (typeof item.image !== "string") continue;
       const path = resolve(
-        dirname(join(data.directory || "", record.file)),
+        dirname(join(data.directory, record.file)),
         item.image,
       );
-      // 来源清单中明确引用的图像允许访问；不遍历任意 JSON 字符串。
-      if (existsSync(path)) await authorize(path);
+      if (existsSync(path)) await allowReference(path);
     }
   }
   return data;
@@ -150,27 +151,47 @@ app.whenReady().then(async () => {
       sandbox: true,
     },
   });
+  window.webContents.on("did-start-loading", () => media.releaseAll());
+  window.webContents.on("destroyed", () => media.releaseAll());
   window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
   window.webContents.on("will-navigate", (event) => event.preventDefault());
-  window.on("close", (event) => {
-    if (!closing && engine.active.size) {
-      event.preventDefault();
-      void dialog
-        .showMessageBox(window, {
-          type: "question",
-          message: "本地任务仍在执行",
-          detail: "停止本地执行后退出，远端视频可能继续生成，可稍后恢复查询。",
-          buttons: ["继续运行", "停止后退出"],
-          cancelId: 0,
-        })
-        .then(async ({ response }) => {
-          if (response === 1) {
-            await engine.stop();
-            closing = true;
-            app.quit();
-          }
-        });
-    }
+  let requestingClose=false, rendererGone=false;
+  let closeTimer:ReturnType<typeof setTimeout>|undefined;
+  const finishClose=()=>{
+    if(closing)return;
+    closing=true;
+    clearTimeout(closeTimer);
+    if(!window.isDestroyed())window.close();
+  };
+  window.webContents.on("render-process-gone",()=>{
+    rendererGone=true;
+    if(requestingClose)void engine.stop().finally(finishClose);
+  });
+  window.webContents.on("did-finish-load",()=>{rendererGone=false;});
+  app.on("before-quit",event=>{
+    if(closing)return;
+    event.preventDefault();
+    if(!window.isDestroyed())window.close();
+    else{closing=true;app.quit();}
+  });
+  window.on("close", event => {
+    if(closing)return;
+    event.preventDefault();
+    if(requestingClose)return;
+    requestingClose=true;
+    void (async()=>{
+      if(engine.active.size){
+        const {response}=await dialog.showMessageBox(window,{type:'question',message:'本地任务仍在执行',detail:'停止本地执行后退出，远端视频可能继续生成，可稍后恢复查询。',buttons:['继续运行','停止后退出'],cancelId:0});
+        if(response!==1){requestingClose=false;return;}
+        await engine.stop();
+      }
+      if(rendererGone||window.webContents.isDestroyed()){finishClose();return;}
+      closeTimer=setTimeout(finishClose,3000);
+      window.webContents.send('flush-before-close');
+    })().catch(()=>{
+      console.error("关闭前保存未完成，保留已有本地产物后退出");
+      finishClose();
+    });
   });
   function handle(name: string, fn: (...args: any[]) => any) {
     ipcMain.handle(name, (event, ...args) => {
@@ -182,6 +203,12 @@ app.whenReady().then(async () => {
       return fn(...args);
     });
   }
+  handle('close-ready',(saved:boolean)=>{
+    if(!requestingClose)return;
+    clearTimeout(closeTimer);
+    requestingClose=false;
+    if(saved===true)finishClose();
+  });
   const materialRoot=()=>join(app.getPath("userData"),"materials");
   async function materialList():Promise<MangaMaterial[]> {
     const index=join(materialRoot(),"index.json");
@@ -216,11 +243,21 @@ app.whenReady().then(async () => {
     const path = join(settings.root, "results", "simulations", crypto.randomUUID());
     await mkdir(path, {recursive:true});
     roots.add(await realpath(path));
-    await engine.run("create_simulation", {run_dir:path});
+    await engine.run("create_simulation", {run_dir:path,creative:true});
     return path;
   });
-  handle("configure", async () => {
+  handle("configure", async (field?:string) => {
     if (engine.active.size) throw new Error("请先停止活动任务");
+    if(field!==undefined){
+      if(!['root','python','ffmpeg','env_file'].includes(field))throw new Error('未知设置字段');
+      const labels:Record<string,string>={root:'选择 MangaWeaver 引擎项目根目录',python:'选择 Python 可执行文件',ffmpeg:'选择 FFmpeg 可执行文件',env_file:'选择本地 .env 凭据文件'};
+      const value=await choose(field==='root'?['openDirectory']:['openFile'],undefined,labels[field]);
+      if(!value)return null;
+      const updated={...settings,[field]:field==='ffmpeg'?dirname(value):value};
+      await writeFile(settingsPath(),JSON.stringify(updated,null,2));
+      settings=updated;
+      return settings;
+    }
     const root = await choose(
       ["openDirectory"],
       undefined,
@@ -395,8 +432,8 @@ app.whenReady().then(async () => {
         ![
           "capture_references", "submit_message", "withdraw_message", "simulate", "submit_revision", "withdraw_revision", "interrupt_workflow",
           "agent_answer", "agent_compact", "agent_fork", "agent_switch_branch", "agent_follow_up", "agent_resume_task", "agent_next_batch", "agent_message", "agent_continue", "agent_select_page", "agent_open_pages", "agent_run_stage", "load_book_pages", "read_session", "save_book_view",
-          "environment",
-          "read_run",
+          "environment", "read_agent_harness",
+          "read_run", "read_candidates", "adopt_candidate", "preview_canvas_delete", "delete_canvas_nodes",
           "start_canvas",
           "fork_canvas",
           "save_canvas",
@@ -420,9 +457,9 @@ app.whenReady().then(async () => {
         input.request_id_to_withdraw = params.request_id_to_withdraw;
         input.message_id = params.message_id; input.delivery = params.delivery; input.references = params.references;
         input.node_ids = params.node_ids; input.purpose = params.purpose;
+        if("expected_revision" in params)input.expected_revision=params.expected_revision;
       } else if (command === "save_book_view" || command === "load_book_pages") {
         if (!project) throw new Error("请先打开项目");
-        if (command === "load_book_pages" && engine.active.size) throw new Error("请先等待当前任务完成");
         input.project = project.path;
         input.book_id = params.book_id;
         input.view = params.view;
@@ -440,12 +477,22 @@ app.whenReady().then(async () => {
         input.operation = params.operation; input.feedback = params.feedback; input.location = params.location;
         input.text = String(params.text || "");
         input.context = params.context;
+        input.project_scope = params.project_scope === true;
         input.references = params.references; input.message_id = params.message_id;
         input.permissions = params.permissions;
         input.call_id = params.call_id;
         input.revision = params.revision;
         input.result = params.result;
         input.task_id = params.task_id; input.task_revision = params.task_revision; input.grant_scope = params.grant_scope; input.resume_mode = params.resume_mode;
+      } else if (command === 'preview_canvas_delete' || command === 'delete_canvas_nodes') {
+        if (!project) throw new Error('请先打开项目');
+        if (engine.active.size) throw new Error('请先等待或停止当前任务');
+        if (!Array.isArray(params.selections)) throw new Error('删除范围无效');
+        input.project = project.path;
+        input.selections = await Promise.all(params.selections.map(async (item: any) => ({
+          run_dir: await check(item.run_dir), node_ids: item.node_ids, scope: item.scope,
+        })));
+        input.expected_revision = params.expected_revision;
       } else if (command === "fork_canvas") {
         input.run_dir = await check(params.run_dir);
         input.from_run = await check(params.from_run);
@@ -455,9 +502,17 @@ app.whenReady().then(async () => {
         if (params.page) input.page = await check(params.page);
         if (params.manifest) input.manifest = await check(params.manifest);
         input.prompt = String(params.prompt || "");
+      } else if (command === 'read_candidates'||command==='adopt_candidate') {
+        input.run_dir=await check(params.run_dir);
+        input.keyframe=String(params.keyframe||'');
+        if(command==='adopt_candidate'){
+          if(!project)throw new Error('请先打开项目');
+          input.project=project.path;input.candidate=params.candidate;input.candidate_revision=params.candidate_revision;input.expected_revision=params.expected_revision;
+        }
       } else if (command === "save_canvas") {
         input.run_dir = await check(params.run_dir);
         input.canvas = params.canvas;
+        if ("expected_revision" in params) input.expected_revision=params.expected_revision;
         const canvas = params.canvas as { page?: string };
         if (canvas?.page) await check(canvas.page);
       } else if (command === "save_source") {
@@ -465,9 +520,13 @@ app.whenReady().then(async () => {
         input.project = project.path;
         if (params.source) input.source = await check(params.source);
         else input.page = await check(params.page);
+        if(params.base_source)input.base_source=await check(params.base_source);
         input.panels = params.panels;
+        if ("expected_revision" in params) input.expected_revision=params.expected_revision;
       } else if (command === "read_source") {
         input.source = await check(params.source);
+      } else if (command === "read_agent_harness") {
+        // 静态编排清单：不依赖项目或运行目录，也不触发模型。
       } else if (command !== "environment") {
         input.run_dir = await check(params.run_dir);
         if (command === "preprocess") {
@@ -518,7 +577,10 @@ app.whenReady().then(async () => {
         project!.runs = data.runs;
         return result;
       }
+      if(command==='read_candidates')for(const item of result.items)await authorize(await check(item.image));
       if (command === "read_run") {
+        // read_run 只在当前项目及其已登记运行中开放，服务端另校验项目归属。
+        roots.add(await realpath(result.directory));
         // 将相对媒体引用解析至对应产物文件，而非应用 cwd。
         for (const record of result.records) {
           const d = record.data;
@@ -553,11 +615,12 @@ app.whenReady().then(async () => {
       return result;
     },
   );
+  handle("app-version", () => app.getVersion());
   handle("stop", () => engine.stop());
-  handle("media", async (path: string) => media.url(await check(path)));
+  handle("media", async (path: string) => media.acquire(await check(path)));
+  handle("release-media", (lease: string) => { if (typeof lease !== "string") throw new Error("无效媒体租约"); media.release(lease); });
   handle("export-file", async (path: string) => {
     await check(path);
-    await media.url(path);
     const result = await dialog.showSaveDialog(window, {
       defaultPath: basename(path),
     });

@@ -6,9 +6,9 @@ from ..io import read_json
 from ..schemas import SourceManifest
 
 
-def load_source(path: Path):
+def load_source(path: Path, value=None):
     path = path.resolve()
-    source = SourceManifest.model_validate(read_json(path))
+    source = SourceManifest.model_validate(read_json(path) if value is None else value)
     for panel in source.panels:
         panel.image = (path.parent / panel.image).resolve()
     source.reference_images = [(path.parent / p).resolve() for p in source.reference_images]

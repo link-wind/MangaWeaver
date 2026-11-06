@@ -14,13 +14,16 @@
     "pack": "node node_modules/electron/install.js && npm run build && electron-builder --mac dir --publish never"
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.2.0",
     "@xyflow/react": "^12.12.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "1.1.1",
     "lucide-react": "^0.468.0",
+    "radix-ui": "1.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-resizable-panels": "4.18.0",
+    "sonner": "^2.0.8",
     "tailwind-merge": "^3.0.0"
   },
   "devDependencies": {
@@ -37,6 +40,9 @@
     "typescript": "^5.9.0",
     "vite": "^8.0.0"
   },
+  "overrides": {
+    "minimatch@>=7 <11.0.1": "11.0.5"
+  },
   "build": {
     "appId": "local.mangaweaver.desktop",
     "productName": "MangaWeaver",
@@ -46,6 +52,7 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
+      "THIRD_PARTY_UI.md",
       "package.json"
     ],
     "mac": {

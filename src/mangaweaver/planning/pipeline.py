@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from ..events import emit
 from ..io import read_json, signature, write_json
 from ..preprocessing.character_description import describe
-from ..schemas import DirectionPlan, Issue, ProductionPlan, ReviewReport, ShotList, SourceScript, VisualAsset
+from ..schemas import DirectionPlan, Issue, ProductionPlan, ReviewReport, ReviewRejected, ShotList, SourceScript, VisualAsset
 from . import arrangement_review, direction_review, script as script_agent, script_review
 from . import shot_arrangement, shot_direction, storyboard, storyboard_review
 
@@ -269,6 +269,6 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
             (run_dir / "planning_pause.json").unlink(missing_ok=True)
             return selected
         reasons = [r.reason for r in previous.reviews if not r.accepted]
-        raise ValueError("已达规划轮次上限，仍有未通过项目：" + "；".join(reasons))
+        raise ReviewRejected("已达规划轮次上限，仍有未通过项目：" + "；".join(reasons))
     finally:
         client.save_usage(run_dir / "planning_usage.json")

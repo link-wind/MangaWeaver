@@ -6,7 +6,8 @@ import {bookGraph,emptyView,groupKey,nodeKey} from '../src/lib/bookCanvas';
 import {canvasState} from '../src/lib/canvas';
 import {pageRange} from '../src/features/BookPicker';
 import {nextRunStage} from '../src/lib/runStages';
-import type {Book,RunData} from '../src/lib/types';
+import type {AgentSession,Book,RunData} from '../src/lib/types';
+import {pageConversation,pageStatus} from '../src/lib/bookWorkspace';
 const fixture=JSON.parse(readFileSync(resolve('../examples/cross-panel/production.json'),'utf8'));
 function run(directory:string):RunData{return {directory,original_page:'/page.png',experimental:false,records:[{file:'production.json',data:fixture}],media:[]};}
 const book:Book={id:'book-test',name:'示例',page_count:2,pages:[1,2].map(n=>({id:`page${n}`,number:n,image:'/page.png',thumbnail:'/thumb.png'}))};
@@ -34,6 +35,35 @@ test('semantic groups redirect edges, retain logical identity and avoid cross-pa
 test('page ranges are explicit file order and reject malformed or out-of-book targets',()=>{
   assert.deepEqual(pageRange('2-4,8，3',10),[2,3,4,8]);
   assert.throws(()=>pageRange('0-2',10));assert.throws(()=>pageRange('4-2',10));assert.throws(()=>pageRange('1,11',10));assert.throws(()=>pageRange('2.5',10));
+});
+test('single-page projection excludes the book, page wrappers and every other run',()=>{
+  const a=run('/a'),b=run('/b'),view=emptyView();
+  view.collapsed_pages=['/a'];
+  view.positions[nodeKey('/a','shot:s001',book)]={x:123,y:456};
+  const projected=bookGraph([{directory:'/a',run:a},{directory:'/b',run:b}],'/a',view,[],false,book,true);
+  assert.ok(projected.nodes.length);
+  assert.ok(projected.nodes.every(node=>node.data.run==='/a'&&!['page','book'].includes(node.data.kind)));
+  assert.ok(projected.logical.every(node=>node.data.run==='/a'));
+  assert.deepEqual(projected.nodes.find(node=>node.data.baseId==='shot:s001')?.position,{x:123,y:456});
+});
+test('page state and conversation follow exact run identity while project messages remain visible',()=>{
+  const session={revision:1,book,messages:[],active_run:'/b',active_page_id:'page2',page_runs:{'book-test:page1':'/a','book-test:page2':'/b'},
+    page_status:{'/a':'已有成片'},workflow:{version:1,revision:1,tasks:[
+      {id:'a',run:'/a',page_id:'page1',status:'completed',call_id:'ca'},
+      {id:'b',run:'/b',page_id:'page2',status:'running',call_id:'cb'}
+    ]},conversation:[{id:'ta',blocks:[{type:'tool',call_id:'ca'}]},{id:'tb',blocks:[{type:'tool',call_id:'cb'}]}]} as unknown as AgentSession;
+  const messages=[
+    {id:'project',text:'全书要求'},
+    {id:'a',run:'/a',page_id:'page1',turn_id:'ta'},
+    {id:'b',run:'/b',page_id:'page2',turn_id:'tb'}
+  ] as AgentSession['messages'];
+  assert.equal(pageStatus(session,'page1'),'已有成片');
+  assert.equal(pageStatus(session,'page2'),'制作中');
+  const filtered=pageConversation(session,messages,'page1');
+  assert.deepEqual(filtered.messages.map(message=>message.id),['project','a']);
+  assert.deepEqual(filtered.session.conversation?.map(turn=>turn.id),['ta']);
+  assert.deepEqual(filtered.session.workflow?.tasks.map(task=>task.id),['a']);
+  assert.equal(pageConversation(session,messages).messages,messages);
 });
 test('next stage advances beyond panels and respects rejected planning',()=>{
   const r=run('/a');

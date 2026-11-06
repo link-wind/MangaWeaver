@@ -1,7 +1,7 @@
 """将现有专业工具接入固定任务层级，不复制创作／审查实现。"""
 from pathlib import Path
 
-from ..schemas import AgentAction, TaskBrief, TaskReport
+from ..schemas import AgentAction, ReviewRejected, TaskBrief, TaskReport
 from ..io import read_json, write_json
 from ..run_lock import run_lock
 from . import tasks
@@ -150,10 +150,10 @@ def stage_tool(project, session, action, request, parent, stage):
         tasks.update(project, child_id, status='interrupted', summary='本地执行已停止；远端任务可能仍在运行')
         finish(project, session, {'status': 'interrupted', 'summary': '本地执行已停止，进度已保留'})
         raise
+    except ReviewRejected as exc:
+        result = {'status': 'blocked', 'reason': 'review_exhausted', 'summary': str(exc)}
     except Exception as exc:
         result = {'status': 'failed', 'reason': 'execution_error', 'summary': str(exc)}
-        if '未通过' in str(exc):
-            result.update(status='blocked', reason='review_exhausted')
     tasks.update(project, child_id, status='waiting_user' if result['status'] in {'blocked', 'needs_user'} else result['status'],
                  reason=result.get('reason', ''), summary=result['summary'], reused=result.get('reused', False),
                  run=session.get('active_run', ''), artifacts=result.get('artifacts', []))

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="foundation.css">
+  <link rel="stylesheet" href="style.css">
+  <title>MangaWeaver · 整本漫画工作区初稿</title>
+</head>
+<body data-view="overview">
+<svg class="sprites" xmlns="http://www.w3.org/2000/svg">
+<symbol id="chevron-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="arrow-right" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+<symbol id="arrow-up" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+<symbol id="home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1Z"/></symbol>
+<symbol id="library" viewBox="0 0 24 24"><rect x="3" y="4" width="4" height="16" rx="1"/><rect x="10" y="4" width="4" height="16" rx="1"/><path d="m17 4 4 15"/></symbol>
+<symbol id="book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-2H4V4Zm9 3a3 3 0 0 1 3-3h5v15h-4a4 4 0 0 0-4 2"/></symbol>
+<symbol id="image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+<symbol id="layers" viewBox="0 0 24 24"><path d="m12 3 10 6-10 6L2 9 12 3ZM2 13l10 6 10-6M2 17l10 6 10-6"/></symbol>
+<symbol id="grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+<symbol id="workflow" viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h6a3 3 0 0 1 3 3v6M6 9v9h9"/></symbol>
+<symbol id="film" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4m-4 8h4m10-8h4m-4 8h4"/></symbol>
+<symbol id="file" viewBox="0 0 24 24"><path d="M13 3H5v18h14V9l-6-6Zm0 0v6h6M8 13h8m-8 4h6"/></symbol>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></symbol>
+<symbol id="alert" viewBox="0 0 24 24"><path d="m12 3 10 18H2L12 3Zm0 6v5m0 3h.01"/></symbol>
+<symbol id="play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7V5Z"/></symbol>
+<symbol id="settings" viewBox="0 0 24 24"><path d="m10 3-1 3-3 1-3 3 2 3v3l3 3 3-1 3 3 3-2 3-3-1-3 2-3-2-3-3-1-3-2-3 1Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+<symbol id="hand" viewBox="0 0 24 24"><path d="M8 13V6a2 2 0 0 1 4 0v6-8a2 2 0 0 1 4 0v8-6a2 2 0 0 1 4 0v11a6 6 0 0 1-6 6h-1c-3 0-5-2-6-4l-4-5a2 2 0 0 1 3-2l2 1Z"/></symbol>
+<symbol id="mouse" viewBox="0 0 24 24"><path d="m5 3 14 9-7 1-4 7-3-17Z"/></symbol>
+<symbol id="map" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2V5Zm6-2v16m6-14v16"/></symbol>
+<symbol id="spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3ZM20 2v4m-2-2h4"/></symbol>
+<symbol id="history" viewBox="0 0 24 24"><path d="M3 3v6h6M3 9a9 9 0 1 1 .5 8M12 7v5l3 2"/></symbol>
+<symbol id="more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+<symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M15 8V4H4v11h4"/></symbol>
+<symbol id="link" viewBox="0 0 24 24"><path d="M14 3h7v7m0-7L10 14m11 0v6H4V3h6"/></symbol>
+<symbol id="attach" viewBox="0 0 24 24"><path d="m8 12 7-7a4 4 0 0 1 6 6L10 22a6 6 0 0 1-8-8L13 3m-7 13 10-10"/></symbol>
+<symbol id="close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+<symbol id="at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v7a3 3 0 0 0 6 0v-3a10 10 0 1 0-4 8"/></symbol>
+<symbol id="chevron-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol></svg>
+<div class="prototype-bar"><div class="traffic"><i></i><i></i><i></i></div><span>整本漫画工作区 · 视觉初稿</span><span class="prototype-disclosure">本地真实素材 / 状态与对话为演示</span></div>
+<div class="book-app">
+  <aside class="book-sidebar">
+    <div class="project-switch"><svg class="icon"><use href="#book"/></svg><strong>MangaWeaver</strong><svg class="icon small-icon"><use href="#chevron-down"/></svg></div>
+    <nav class="global-nav" aria-label="项目导航">
+      <button data-action="overview"><svg class="icon"><use href="#home"/></svg>开始创作</button>
+      <button data-action="preview"><svg class="icon"><use href="#film"/></svg>成片库</button>
+      <button data-action="materials"><svg class="icon"><use href="#library"/></svg>素材库</button>
+    </nav>
+    <div class="side-section-title">当前漫画</div>
+    <button class="book-entry" data-action="overview"><img src="assets/page-094.jpg" alt="当前漫画缩略图"><span><strong>入间同学入魔了</strong><small>卷 01</small></span></button>
+    <button class="overview-link active" data-action="overview"><svg class="icon"><use href="#grid"/></svg>全书总览</button>
+    <div class="current-work">
+      <span class="side-section-title">当前工作</span>
+      <button class="current-page-link" data-action="current"><span>第 094 页</span><small>1 项需处理</small></button>
+      <nav class="page-outline" aria-label="本页产物">
+        <button data-focus="source">漫画来源<span>6</span></button>
+        <button data-focus="plan">镜头编排<span>4</span></button>
+        <button data-focus="frames">关键画面<span>5</span></button>
+        <button data-focus="video">视频片段<span>4</span></button>
+      </nav>
+    </div>
+    <div class="sidebar-foot"><button data-action="settings"><svg class="icon"><use href="#settings"/></svg>设置</button><span><i></i>本地项目</span></div>
+  </aside>
+  <main class="book-main">
+    <header class="workspace-nav">
+      <div class="nav-path"><button data-action="overview" class="path-root">全书</button><svg class="icon small-icon path-separator"><use href="#chevron-right"/></svg><span id="path-page">入间同学入魔了 · 卷 01</span></div>
+      <div class="main-actions">
+        <button class="small-button page-only" data-action="compare"><svg class="icon"><use href="#panel"/></svg>双页对照</button>
+        <button class="small-button compare-only" data-action="single"><svg class="icon"><use href="#close"/></svg>关闭对照</button>
+        <button class="dark-button page-only" data-action="run"><svg class="icon"><use href="#play"/></svg>继续制作</button>
+        <button class="icon-button" data-action="toggle-chat" aria-label="收起或展开创作助手" title="收起或展开创作助手"><svg class="icon"><use href="#panel"/></svg></button>
+      </div>
+    </header>
+    <section class="overview-screen" aria-label="全书总览">
+      <div class="collection-heading"><div><h1>入间同学入魔了<span>卷 01</span></h1><p>页面、进度和创作，都从这里开始。</p></div><button class="small-button" data-action="open94">继续第 094 页<svg class="icon"><use href="#arrow-right"/></svg></button></div>
+      <div class="collection-toolbar">
+        <div class="filter-tabs" role="tablist" aria-label="筛选页面">
+          <button role="tab" aria-selected="true" data-filter="all">全部页面<span>10</span></button>
+          <button role="tab" aria-selected="false" data-filter="working">制作中<span>1</span></button>
+          <button role="tab" aria-selected="false" data-filter="issue">需处理<span>1</span></button>
+          <button role="tab" aria-selected="false" data-filter="done">已有成片<span>2</span></button>
+        </div>
+        <label class="jump-input"><svg class="icon"><use href="#search"/></svg><input id="jump" aria-label="跳转页码" placeholder="跳至页码" inputmode="numeric"><kbd>↵</kbd></label>
+      </div>
+      <div class="page-grid" id="page-grid" aria-label="漫画页面"></div>
+      <div class="collection-footer"><span>原作页码 090—099 · 当前加载 10 页</span><span>双击打开页面</span></div>
+      <div class="selection-dock" hidden>
+        <span class="selection-total">已选 <strong>1</strong> 页</span>
+        <button data-action="clear-selection" class="small-button">取消选择</button>
+        <span class="dock-divider"></span>
+        <button data-action="open-selected" class="small-button">打开页面</button>
+        <button data-action="compare-selected" class="small-button">双页对照</button>
+        <button data-action="batch" class="dark-button"><svg class="icon"><use href="#play"/></svg><span>制作所选</span></button>
+      </div>
+    </section>
+    <section class="page-screen" aria-label="当前页画布">
+      <div class="page-navigation"><div><button class="icon-button" data-action="prev" aria-label="上一页"><svg class="icon"><use href="#chevron-left"/></svg></button><span id="page-number">第 094 页</span><button class="icon-button" data-action="next" aria-label="下一页"><svg class="icon"><use href="#chevron-right"/></svg></button></div><span class="page-summary">6 格漫画 · 4 个镜头 · 20 秒</span><span class="tiny-notice">仅显示当前页</span></div>
+      <div class="workspace-panes">
+        <div class="active-pane">
+          <div class="canvas-scroll" id="canvas-scroll">
+            <div class="stage-board" id="stage-board">
+              <svg class="board-wires" viewBox="0 0 800 760" aria-hidden="true"><path d="M168 245H192Q204 245 204 260V330Q204 342 222 342H246"/><path d="M460 342H480Q493 342 493 328V138Q493 126 505 126H524"/><path d="M493 328V341H524"/><path d="M493 341V555H524"/></svg>
+              <section class="source-column" id="source">
+                <h2>漫画来源 <span>第 094 页</span></h2>
+                <button class="original-page" data-action="source-preview"><img id="source-image" src="assets/page-094.jpg" alt="第94页原始漫画"></button>
+                <div class="section-caption">原作完整页</div>
+                <div class="panel-heading">漫画分格 <span>6 格</span><button data-action="panels" aria-label="展开或收起漫画分格"><svg class="icon small-icon"><use href="#chevron-down"/></svg></button></div>
+                <div class="panel-strip"><img src="../toonflow-canvas-v1/assets/panel-01.jpg" alt="分格1"><img src="../toonflow-canvas-v1/assets/panel-03.jpg" alt="分格3"><img src="../toonflow-canvas-v1/assets/panel-06.jpg" alt="分格6"></div>
+                <div class="extra-panels" hidden><img src="../toonflow-canvas-v1/assets/panel-02.jpg" alt="分格2"><img src="../toonflow-canvas-v1/assets/panel-04.jpg" alt="分格4"><img src="../toonflow-canvas-v1/assets/panel-05.jpg" alt="分格5"></div>
+              </section>
+              <section class="plan-column" id="plan"><h2>镜头编排 <span>4 镜头</span></h2><div class="shot-plan"><header>从拒绝到愧疚<span>20s</span></header><div><small>01</small><p>热情提议，慌张拒绝<span>分格 01 · 双人全景</span></p><small>4s</small></div><div><small>02</small><p>发愣，翻找零食<span>分格 02—03 · 动作镜头</span></p><small>8s</small></div><div class="selected-shot"><small>03</small><p>道歉与沉默<span>分格 04—05 · 双人近景</span></p><small>4s</small></div><div><small>04</small><p>抽泣与手足无措<span>分格 06 · 过肩远景</span></p><small>4s</small></div></div><div class="plan-note"><svg class="icon small-icon"><use href="#check"/></svg>6 格内容，保留完整情绪</div></section>
+              <section class="frames-column" id="frames"><h2>关键画面与视频 <span>5 张 / 4 段</span></h2>
+                <article class="frame-tile"><div class="tile-label">镜头 01 · 热情提议<span>4s</span></div><button data-action="select-frame"><img src="../toonflow-canvas-v1/assets/frame-01.png" alt="真实彩色关键画面：热情提议"></button></article>
+                <article class="frame-tile"><div class="tile-label">镜头 02 · 发愣到慌乱<span>8s</span></div><button data-action="select-frame"><img src="../toonflow-canvas-v1/assets/frame-02-start.png" alt="真实彩色关键画面：发愣到慌乱"></button></article>
+                <article class="frame-tile issue-tile" id="video"><div class="tile-label">镜头 03 · 道歉与沉默<span class="amber">需修订</span></div><button class="video-tile" data-action="preview" aria-label="播放镜头03"><img src="../toonflow-canvas-v1/assets/video-03.jpg" alt="镜头03真实历史视频"><span class="play-circle"><svg class="icon"><use href="#play"/></svg></span><span class="duration">00:04</span></button><span class="section-caption">Reviewer · 00:00.7 意外切镜</span></article>
+              </section>
+            </div>
+            <div class="unstarted-page" hidden><img alt="尚未开始制作的漫画页"><p>这一页还没有制作记录</p><button class="dark-button" data-action="run"><svg class="icon"><use href="#play"/></svg>开始制作这一页</button></div>
+          </div>
+          <div class="canvas-foot"><button class="icon-button" data-action="zoom-out" aria-label="缩小"><svg class="icon"><use href="#minus"/></svg></button><button data-action="fit" class="zoom-display">100%</button><button class="icon-button" data-action="zoom-in" aria-label="放大"><svg class="icon"><use href="#plus"/></svg></button><span></span><button class="icon-button" data-action="fit" aria-label="适应当前页"><svg class="icon"><use href="#expand"/></svg></button></div>
+        </div>
+        <div class="comparison-divider" title="拖动调整对照宽度" role="separator" aria-label="调整双页宽度" aria-orientation="vertical"></div>
+        <aside class="reference-pane" aria-label="对照参考页"><header><span id="reference-title">第 095 页</span><small>只读参考</small><button class="icon-button" data-action="single" aria-label="关闭对照"><svg class="icon"><use href="#close"/></svg></button></header><div class="reference-scroll"><img id="reference-page" src="assets/page-095.jpg" alt="真实漫画第95页"><div class="reference-actions"><button class="small-button" data-action="reference"><svg class="icon"><use href="#plus"/></svg>加入对话</button><button class="small-button" data-action="swap">设为当前页<svg class="icon"><use href="#arrow-right"/></svg></button></div></div></aside>
+      </div>
+    </section>
+  </main>
+  <aside class="assistant-area"><header class="assistant-heading"><span><svg class="icon"><use href="#spark"/></svg>创作助手</span><div><button class="icon-button" data-action="new" aria-label="新要求"><svg class="icon"><use href="#plus"/></svg></button><button class="icon-button" data-action="history" aria-label="会话历史"><svg class="icon"><use href="#history"/></svg></button><button class="icon-button" data-action="more" aria-label="更多"><svg class="icon"><use href="#more"/></svg></button></div></header>
+    <div class="overview-chat">
+      <nav class="conversation-tabs"><button class="active" data-action="overview-dialogue">对话</button><button data-action="overview-process">协作<span class="tab-count">3</span></button></nav>
+      <div class="overview-chat-content">
+        <div class="date-divider">整本漫画</div>
+        <div class="user-message"><span class="user-reference"><svg class="icon"><use href="#book"/></svg>第 094—096 页</span>把这几页做成彩色动画，保留对话停顿，使用日语配音和中文字幕。</div>
+        <div class="assistant-message"><p>已将这 3 页加入制作范围。你可以继续查看其他页面，画布会停留在你正在编辑的位置。</p>
+          <div class="batch-status"><span class="batch-icon"><svg class="icon"><use href="#workflow"/></svg></span><div><strong>第 095 页 · 关键画面</strong><span>正在处理第 2 / 3 页</span></div><button class="icon-button" data-action="open95" aria-label="查看第95页"><svg class="icon"><use href="#arrow-right"/></svg></button></div>
+          <div class="book-task-row"><span class="status-dot amber"></span><span>第 094 页</span><small>视频审查 · 需修订</small><button data-action="open94" aria-label="查看第94页反馈"><svg class="icon small-icon"><use href="#chevron-right"/></svg></button></div>
+          <div class="book-task-row"><span class="status-dot violet"></span><span>第 095 页</span><small>画面创作 → 画面审查</small></div>
+          <div class="book-task-row"><span class="status-dot"></span><span>第 096 页</span><small>等待处理</small></div>
+          <p class="muted-copy">第 094 页有 1 个片段需要调整，其余页面会继续处理。</p>
+          <button class="inline-link" data-action="open94">查看第 094 页的反馈<svg class="icon small-icon"><use href="#arrow-right"/></svg></button>
+        </div>
+      </div>
+      <div class="overview-composer"><div class="scope-chip"><svg class="icon small-icon"><use href="#book"/></svg><span>整本漫画</span></div><textarea aria-label="全书创作要求" placeholder="选几页，或告诉我想从哪里开始…"></textarea><div class="composer-tools"><div class="composer-left"><button class="icon-button" data-action="attachment" aria-label="添加素材"><svg class="icon"><use href="#plus"/></svg></button><button class="icon-button" data-action="mention" aria-label="引用页面"><svg class="icon"><use href="#at"/></svg></button><span class="model-select">Gemini 3.8 Flash<svg class="icon"><use href="#chevron-down"/></svg></span></div><button class="send-button" data-action="send" aria-label="发送要求"><svg class="icon"><use href="#arrow-up"/></svg></button></div></div>
+      <div class="overview-hint">只提交明确选择的制作范围</div>
+    </div>
+    <div class="page-chat"><aside class="conversation">
+    <nav class="conversation-tabs"><button class="active" data-tab="dialogue">对话</button><button data-tab="collaboration">协作<span class="tab-count">4</span></button></nav>
+    <div class="conversation-body">
+      <div class="dialogue-view">
+        <div class="date-divider">本页创作</div>
+        <div class="user-message"><span class="user-reference"><svg class="icon"><use href="#book"/></svg>第 094 页</span>将这一页做成彩色动画，保留对话里的停顿，日语配音和中文字幕。</div>
+        <div class="assistant-message"><p>这一页是同一场景的连续对话。我会保留 <strong>6 格内容</strong>，编排为 <strong>4 个镜头</strong>，让情绪有展开的空间。</p>
+          <details class="agent-group" open><summary><svg class="icon"><use href="#workflow"/></svg>4 组 Agent 协作<span class="group-note">3 个片段通过</span><svg class="icon down"><use href="#chevron-down"/></svg></summary><div class="agent-flow"><div class="agent-row"><svg class="icon"><use href="#check"/></svg>脚本创作<svg class="icon flow-arrow"><use href="#arrow-right"/></svg>脚本审查<span class="result">完成</span></div><div class="agent-row"><svg class="icon"><use href="#check"/></svg>镜头编排<svg class="icon flow-arrow"><use href="#arrow-right"/></svg>编排审查<span class="result">完成</span></div><div class="agent-row"><svg class="icon"><use href="#check"/></svg>关键画面<svg class="icon flow-arrow"><use href="#arrow-right"/></svg>画面审查<span class="result">完成</span></div><div class="agent-row warning"><svg class="icon"><use href="#alert"/></svg>视频生成<svg class="icon flow-arrow"><use href="#arrow-right"/></svg>视频审查<span class="result">1 项需修订</span></div></div></details>
+          <div class="review-heading"><svg class="icon"><use href="#film"/></svg>视频审查反馈<span class="role">Reviewer</span></div>
+          <p class="review-body">镜头 03 在 <a class="time-reference" data-action="preview">00:00.7</a> 发生了意外硬切，入间被挤出画面，打断了道歉时的表情和口型。</p>
+          <div class="review-actions"><button class="locate-button" data-locate="video03"><svg class="icon"><use href="#expand"/></svg>定位镜头 03</button><button class="muted-action" data-tab="collaboration">查看过程<svg class="icon small-icon"><use href="#chevron-right"/></svg></button></div>
+          <p style="margin-top:23px">建议只重做这个片段：<strong>保持双人近景，完整呈现入间的道歉，不在中途切换机位。</strong></p>
+          <div class="message-actions"><button class="icon-button" data-action="copy" title="复制回复" aria-label="复制回复"><svg class="icon"><use href="#copy"/></svg></button><button class="icon-button" data-tab="collaboration" title="查看协作过程" aria-label="查看协作过程"><svg class="icon"><use href="#workflow"/></svg></button><button class="icon-button" data-action="more" title="更多回复操作" aria-label="更多回复操作"><svg class="icon"><use href="#more"/></svg></button></div>
+        </div>
+      </div>
+      <div class="collaboration-view">
+        <h2 class="collab-title">第 094 页的创作过程</h2><div class="collab-subtitle">沿用已有产物，定位需要修订的镜头。</div>
+        <section class="trace-stage"><h3>脚本与对白<span>完成</span></h3><div class="role-detail"><strong>Script Creator</strong> → Script Reviewer</div><p>保留原页对白，将入间跨格的道歉合并为一次完整表达。</p><button class="link" data-locate="plan">查看脚本<svg class="icon"><use href="#link"/></svg></button></section>
+        <section class="trace-stage"><h3>镜头编排<span>完成</span></h3><div class="role-detail"><strong>Arrangement Creator</strong> → Reviewer</div><p>6 格映射为 4 个镜头；发愣与翻找合并为一个 8 秒动作镜头。</p><button class="link" data-locate="plan">查看镜头表<svg class="icon"><use href="#link"/></svg></button></section>
+        <section class="trace-stage"><h3>彩色关键画面<span>完成</span></h3><div class="role-detail"><strong>Storyboard Creator</strong> → Reviewer</div><p>5 张关键画面，动作镜头使用入点与出点两张参考图。</p><button class="link" data-locate="frame03">查看关键画面<svg class="icon"><use href="#link"/></svg></button></section>
+        <section class="trace-stage warning"><h3>视频生成与审查<span style="color:#a17b41">1 项需修订</span></h3><div class="role-detail"><strong>Video Creator</strong> → Video Reviewer</div><p>镜头 01、02、04 通过。镜头 03 在约 0.7 秒意外硬切，入间被挤出主体视野。</p><div class="role-detail"><strong>Reviewer → Video Creator</strong><br>取消中途切镜，保持原定双人近景，完整呈现入间的嘴型与自责表情。</div><button class="link" data-locate="video03" style="margin-top:12px">定位待修订片段<svg class="icon"><use href="#link"/></svg></button></section>
+      </div>
+    </div>
+    <div class="composer-wrap"><div class="composer"><div class="reference-chip"><img src="../toonflow-canvas-v1/assets/frame-03.png" alt=""><span>镜头 03 · 道歉与沉默</span><button data-action="remove-reference" title="移除引用" aria-label="移除引用"><svg class="icon"><use href="#close"/></svg></button></div><textarea aria-label="创作指令" spellcheck="false" placeholder="描述你想调整的画面或节奏…">保持双人近景，不要中途切换机位。</textarea><div class="composer-tools"><div class="composer-left"><button class="icon-button" data-action="attachment" title="添加附件" aria-label="添加附件"><svg class="icon"><use href="#plus"/></svg></button><button class="icon-button" data-action="mention" title="引用画布节点" aria-label="引用画布节点"><svg class="icon"><use href="#at"/></svg></button><button class="model-select" data-action="model">Gemini 3.8 Flash<svg class="icon"><use href="#chevron-down"/></svg></button></div><button class="send-button" data-action="send" title="发送指令" aria-label="发送指令"><svg class="icon"><use href="#arrow-up"/></svg></button></div></div><div class="composer-hint"><span>仅修改引用的镜头</span><span>↵ 发送</span></div></div>
+  </aside></div>
+  </aside>
+</div>
+<dialog class="media-preview"><header><span>本地历史素材预览</span><button class="icon-button" data-action="close-preview" aria-label="关闭预览"><svg class="icon"><use href="#close"/></svg></button></header><video src="../toonflow-canvas-v1/assets/shot-03.mp4" poster="../toonflow-canvas-v1/assets/video-03.jpg" controls playsinline preload="none"></video><p>既有生成片段，保留原审查问题；本视觉稿不提交生成任务。</p></dialog>
+<div class="toast" role="status"></div>
+<script src="app.js"></script>
+</body>
+</html>

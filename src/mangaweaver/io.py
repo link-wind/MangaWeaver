@@ -1,6 +1,8 @@
 """JSON、模板与直接的文件式恢复。"""
 import hashlib
 import json
+import tempfile
+import os
 from importlib.resources import files
 from pathlib import Path
 
@@ -16,9 +18,18 @@ def write_json(path: Path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     if isinstance(value, BaseModel):
         value = value.model_dump(mode="json")
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    tmp.replace(path)
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+        tmp.replace(path)
+    finally:
+        try:
+            tmp.unlink(missing_ok=True)
+        except OSError:
+            # 清理失败不能掩盖实际写入错误，也不能把已完成保存误报为失败。
+            pass
     if path.name in {'manifest.json', 'prepared.json', 'planning_draft.json', 'planning_state.json', 'production.json',
                      'selected.json', 'tasks.json', 'generation_tasks.json', 'export.json'}:
         from .events import artifact

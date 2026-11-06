@@ -1,4 +1,4 @@
-import type {AgentSession,ConversationBlock,ConversationTurn,WorkflowTask,RunData,TaskActivity} from './types';
+import type {AgentSession,ConversationBlock,ConversationTurn,WorkflowTask,RunData,TaskActivity,CanvasReference} from './types';
 
 /** 页码只来自相同运行的确切映射，不使用当前页或目录名猜测。 */
 export function runOrigin(run:string|undefined,session?:AgentSession|null,runs:RunData[]=[]){
@@ -72,4 +72,8 @@ export function taskOwnsError(error:string,tasks:WorkflowTask[]){
   return tasks.some(t=>['failed','interrupted','waiting_user'].includes(t.status)&&
     [t.summary,...t.activities.map(a=>a.message||'')].some(message=>message&&message.length>12&&
       (error.includes(message)||message.includes(error))));
+}
+
+export function referenceLabel(ref:CanvasReference){
+  return `${ref.page?.number?`第 ${ref.page.number} 页 · `:''}${ref.label}`;
 }

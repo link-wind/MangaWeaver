@@ -13,6 +13,16 @@ from mangaweaver.schemas import AgentAction, MessageDecision, ReviewReport
 
 
 class MessageTests(unittest.TestCase):
+    def test_invalid_model_response_is_execution_error_not_user_question(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root, run, session, parent = self.setup_project(tmp)
+            self.submit(root, run, parent, '检查当前安排')
+            def invalid(*args):
+                return MessageDecision.model_validate_json('not-json')
+            with self.assertRaisesRegex(RuntimeError, '消息模型响应失败'):
+                messages.receive(root, session, {'_coordinator_client': SimpleNamespace(json=invalid)}, parent)
+            self.assertEqual(tasks.inbox(root)[0]['status'], 'queued')
+
     def setup_project(self, tmp):
         root = Path(tmp).resolve()
         run = root / 'runs/page001'

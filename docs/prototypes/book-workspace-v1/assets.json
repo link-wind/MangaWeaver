@@ -1,0 +1,18 @@
+{
+  "purpose": "整本漫画视觉初稿，只读本地素材",
+  "pages": {
+    "assets/page-090.jpg": "assets/manga/iruma-vol01/image-086.jpg",
+    "assets/page-091.jpg": "assets/manga/iruma-vol01/image-087.jpg",
+    "assets/page-092.jpg": "assets/manga/iruma-vol01/image-088.jpg",
+    "assets/page-093.jpg": "assets/manga/iruma-vol01/image-089.jpg",
+    "assets/page-094.jpg": "assets/manga/iruma-vol01/image-090.jpg",
+    "assets/page-095.jpg": "assets/manga/iruma-vol01/image-091.jpg",
+    "assets/page-096.jpg": "assets/manga/iruma-vol01/image-092.jpg",
+    "assets/page-097.jpg": "assets/manga/iruma-vol01/image-093.jpg",
+    "assets/page-098.jpg": "assets/manga/iruma-vol01/image-094.jpg",
+    "assets/page-099.jpg": "assets/manga/iruma-vol01/image-095.jpg"
+  },
+  "shared_assets": "../toonflow-canvas-v1/assets/",
+  "source_ui": "../toonflow-canvas-v1/index.html",
+  "demo_data": "页卡状态与跨页任务为界面演示数据，非实际运行结果"
+}
