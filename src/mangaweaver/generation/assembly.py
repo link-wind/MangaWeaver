@@ -42,13 +42,28 @@ def clip_ranges(paths, continuous=False):
     return result
 
 
-def assemble(paths: list[Path], destination: Path, continuous=False, fps=24):
+EXPORT_HEIGHTS = {"480P": 480, "720P": 720, "1080P": 1080}
+
+
+def _target_size(paths, export_resolution):
+    """导出画布：source 跟随首个片段实际尺寸，显式档位按 16:9 推导并取偶。"""
+    if export_resolution == "source":
+        video = next(s for s in probe(paths[0])["streams"] if s["codec_type"] == "video")
+        width, height = int(video["width"]), int(video["height"])
+    else:
+        height = EXPORT_HEIGHTS[export_resolution]
+        width = round(height * 16 / 9)
+    return width - width % 2, height - height % 2
+
+
+def assemble(paths: list[Path], destination: Path, continuous=False, fps=24, export_resolution="source"):
     if not paths:
         raise ValueError("没有视频可以组装")
     infos = [probe(path) for path in paths]
     for path, info in zip(paths, infos):
         if not any(s.get("codec_type") == "audio" for s in info["streams"]):
             raise ValueError(f"片段缺少音轨，不能导出有声成片：{path}")
+    width, height = _target_size(paths, export_resolution)
     destination.parent.mkdir(parents=True, exist_ok=True)
     args = ["ffmpeg", "-v", "error", "-y"]
     for path in paths:
@@ -58,8 +73,8 @@ def assemble(paths: list[Path], destination: Path, continuous=False, fps=24):
         drop = audio_start > 0
         # 跨镜头 cut 不删帧；同镜头仅删除可证实重复的一帧。
         trim = "trim=start_frame=1," if drop else ""
-        filters.append(f"[{i}:v:0]{trim}setpts=PTS-STARTPTS,scale=1280:720:force_original_aspect_ratio=decrease,"
-                       f"pad=1280:720:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[v{i}]")
+        filters.append(f"[{i}:v:0]{trim}setpts=PTS-STARTPTS,scale={width}:{height}:force_original_aspect_ratio=decrease,"
+                       f"pad={width}:{height}:(ow-iw)/2:(oh-ih)/2,setsar=1,fps={fps},format=yuv420p[v{i}]")
         # 音频跟随视频边界裁剪，统一采样格式，不混入新的配乐。
         filters.append(f"[{i}:a:0]atrim=start={audio_start},asetpts=PTS-STARTPTS,"
                        f"aresample=48000,aformat=sample_fmts=fltp:channel_layouts=stereo,"

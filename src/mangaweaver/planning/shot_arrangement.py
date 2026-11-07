@@ -1,5 +1,5 @@
 """跨格事件识别、分类与镜头编排。"""
-from ..schemas import ShotList
+from ..schemas import ShotList, check_total_duration, segment_duration_rule
 
 
 def create(client, source, script, directory, previous=None, feedback=()):
@@ -11,10 +11,9 @@ def create(client, source, script, directory, previous=None, feedback=()):
             "source_script": script.model_dump(mode="json"),
             "previous": previous.model_dump(mode="json") if previous else None,
             "feedback": feedback,
-            "backend_limits": {"model": client.config.minimax_model, "resolution": client.config.resolution, "segment_duration_seconds": "4..15 integer"},
+            "backend_limits": {"model": client.config.minimax_model, "resolution": client.config.resolution, "segment_duration_seconds": segment_duration_rule()},
             "target_duration_seconds": client.config.target_duration or None,
         }, ShotList, source.images + source.reference_images, directory / f"{cid}.json")
-        if client.config.target_duration and abs(sum(s.duration for s in value.shots) - client.config.target_duration) > 1e-6:
-            raise ValueError("镜头总时长与指定的 target_duration 不一致，请检查已保存的编排")
+        check_total_duration(value, client.config.target_duration)
         candidates[cid] = value.check_source(script)
     return candidates

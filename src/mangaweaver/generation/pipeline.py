@@ -7,12 +7,14 @@ from ..events import emit
 from ..io import file_signature, read_json, signature, write_json
 from . import assembly, tasks, video_review, subtitles
 from ..planning import dialogue
-from ..schemas import ReviewRejected
+from ..schemas import ReviewRejected, check_total_duration
 
 log = logging.getLogger(__name__)
 
 
 def run(config, plan, run_dir: Path, dry_run=False):
+    # 手改或旁路产物也可能进入生成；总时长在任务构建前复查，违规不进入任何提交。
+    check_total_duration(plan.shot_list, config.target_duration)
     emit("tasks")
     jobs = tasks.build(plan, run_dir / "video_frames")
     # 所有任务先检查，再发出任何付费提交，避免中途才发现时长不支持。
@@ -24,8 +26,7 @@ def run(config, plan, run_dir: Path, dry_run=False):
     from ..clients import create
     client = MiniMax(config)
     reviewer = create(config)
-    selected_shots = []
-    selected_tracks = []
+    shots_data = []
     previous_shot = None
     try:
         emit("dialogue")
@@ -70,51 +71,100 @@ def run(config, plan, run_dir: Path, dry_run=False):
                         write_json(state_path, state)
                     paths[cid] = path
                 emit("video.review", segment_id=job.segment_id, shot_id=job.shot_id)
+                redo_path = directory / "redo.json"
+                redo = read_json(redo_path) if redo_path.exists() else None
                 selected, report = video_review.select(reviewer, plan, shot, paths, directory / "review.json",
-                    previous_segment if shot.type == "action" else previous_shot, job, speech_map[job.segment_id])
+                    previous_segment if shot.type == "action" else previous_shot, job, speech_map[job.segment_id],
+                    feedback=redo["feedback"] if redo else "")
                 write_json(directory / "selected.json", {"video": str(selected), "review": report.model_dump(mode="json")})
                 if not report.accepted:
-                    raise ReviewRejected(f"视频段 {job.segment_id} 未通过：{report.reason}；保留候选供人工处理")
+                    raise ReviewRejected(f"视频段 {job.segment_id} 未通过：{report.reason}；保留候选供人工处理，可用 redo 重提")
+                if redo:
+                    redo_path.unlink(missing_ok=True)  # 反馈已被本轮评审消费；再次失败可重新 redo
                 selected_segments.append(selected)
                 segment_tracks.append(subtitles.from_review(speech_map[job.segment_id], report, selected))
                 previous_segment = selected
             shot_path = run_dir / "video" / shot.shot_id / "selected.mp4"
-            assembly.assemble(selected_segments, shot_path, continuous=shot.type == "action")
+            assembly.assemble(selected_segments, shot_path, continuous=shot.type == "action",
+                              export_resolution=config.export_resolution)
             if shot.type == "action":
                 _, report = video_review.select(reviewer, plan, shot, {"selected_shot": shot_path},
                     run_dir / "video" / shot.shot_id / "shot_review.json", previous_shot)
                 if not report.accepted:
                     raise ReviewRejected(f"完整镜头 {shot.shot_id} 未通过接缝／节奏审查：{report.reason}")
-            selected_shots.append(shot_path)
-            selected_tracks.append(subtitles.combine(selected_segments, segment_tracks, continuous=shot.type == "action"))
+            shots_data.append((shot_path, subtitles.combine(selected_segments, segment_tracks, continuous=shot.type == "action")))
             previous_shot = shot_path
         checkpoint()
-        emit("assembly")
-        clean = assembly.assemble(selected_shots, run_dir / "final_clean.mp4")
-        track = subtitles.combine(selected_shots, selected_tracks)
-        write_json(run_dir / "subtitles.json", [c.model_dump() for c in track])
-        result = subtitles.export(clean, track, run_dir / "final.mp4")
-        write_json(run_dir / "export.json", {"output": str(result.resolve()),
-            "plan_signature": signature(plan), "target_duration": sum(j.target_duration for j in jobs),
-            "actual_duration": float(assembly.probe(result)["format"]["duration"]),
-            "clean_output": str(clean.resolve()), "subtitles": str(result.with_suffix(".srt").resolve()),
-            "spoken_language": "Japanese", "subtitle_language": "Chinese",
-            "shots": [s.shot_id for s in plan.shot_list.shots]})
-        return result
+        return finalize(plan, jobs, run_dir, shots_data, config)
     finally:
         reviewer.save_usage(run_dir / "video_review_usage.json")
+
+
+def finalize(plan, jobs, run_dir: Path, shots_data, config):
+    """镜头已选画面与字幕轨的成片收尾；生成主流程与 assemble 命令共用。"""
+    selected_shots = [p for p, _ in shots_data]
+    selected_tracks = [t for _, t in shots_data]
+    emit("assembly")
+    clean = assembly.assemble(selected_shots, run_dir / "final_clean.mp4", export_resolution=config.export_resolution)
+    track = subtitles.combine(selected_shots, selected_tracks)
+    write_json(run_dir / "subtitles.json", [c.model_dump() for c in track])
+    result = subtitles.export(clean, track, run_dir / "final.mp4")
+    write_json(run_dir / "export.json", {"output": str(result.resolve()),
+        "plan_signature": signature(plan), "target_duration": sum(j.target_duration for j in jobs),
+        "actual_duration": float(assembly.probe(result)["format"]["duration"]),
+        "clean_output": str(clean.resolve()), "subtitles": str(result.with_suffix(".srt").resolve()),
+        "spoken_language": "Japanese", "subtitle_language": "Chinese",
+        "shots": [s.shot_id for s in plan.shot_list.shots]})
+    return result
+
+
+def export_from_disk(plan, run_dir: Path):
+    """从各段 selected.json 与声音计划重组装成片；不提交、不评审。"""
+    from ..config import Config
+    from ..planning.dialogue import SpeechPlan
+    from .video_review import VideoReviewReport
+    speech_path = run_dir / "dialogue" / "selected.json"
+    if not speech_path.exists():
+        raise ValueError("缺少对白计划（dialogue/selected.json），请先完成生成阶段")
+    config = Config(**read_json(run_dir / "config.json"))
+    jobs = tasks.build(plan, run_dir / "video_frames")
+    speech_map = {s.segment_id: s for s in SpeechPlan.model_validate(read_json(speech_path)).segments}
+    shots_data = []
+    for shot in plan.shot_list.shots:
+        selected_segments, segment_tracks = [], []
+        for job in [j for j in jobs if j.shot_id == shot.shot_id]:
+            state_file = run_dir / "video" / shot.shot_id / job.segment_id / "selected.json"
+            if not state_file.exists():
+                raise ValueError(f"{job.segment_id} 尚无通过审查的已选画面，不能重组装")
+            record = read_json(state_file)
+            selected = Path(record["video"])
+            if not selected.is_file():
+                raise ValueError(f"{job.segment_id} 已选画面缺失：{selected}，请先恢复下载或重提该段")
+            selected_segments.append(selected)
+            report = VideoReviewReport.model_validate(record["review"])
+            segment_tracks.append(subtitles.from_review(speech_map[job.segment_id], report, selected))
+        shot_path = run_dir / "video" / shot.shot_id / "selected.mp4"
+        assembly.assemble(selected_segments, shot_path, continuous=shot.type == "action",
+                          export_resolution=config.export_resolution)
+        shots_data.append((shot_path, subtitles.combine(selected_segments, segment_tracks, continuous=shot.type == "action")))
+    return finalize(plan, jobs, run_dir, shots_data, config)
+
+
+def job_signature(job, config):
+    """提交与重提共用的段输入签名；关键帧或参数变化即视为新输入。"""
+    return signature({"job": job.model_dump(mode="json"), "model": config.minimax_model,
+        "resolution": config.resolution, "endpoint": config.minimax_base_url,
+        "first": file_signature(job.first_frame), "last": file_signature(job.last_frame) if job.last_frame else None})
 
 
 def _submit_candidates(client, config, job, run_dir):
     directory = run_dir / "video" / job.shot_id / job.segment_id
     directory.mkdir(parents=True, exist_ok=True)
-    job_signature = signature({"job": job.model_dump(mode="json"), "model": config.minimax_model,
-        "resolution": config.resolution, "endpoint": config.minimax_base_url,
-        "first": file_signature(job.first_frame), "last": file_signature(job.last_frame) if job.last_frame else None})
+    job_signature_value = job_signature(job, config)
     state_path = directory / "tasks.json"
-    state = read_json(state_path) if state_path.exists() else {"signature": job_signature, "request": {"model": config.minimax_model,
+    state = read_json(state_path) if state_path.exists() else {"signature": job_signature_value, "request": {"model": config.minimax_model,
         "resolution": config.resolution, "mode": job.mode, "requested_duration": validate_task(job, config)}, "candidates": {}}
-    if state["signature"] != job_signature:
+    if state["signature"] != job_signature_value:
         raise ValueError(f"{job.segment_id} 输入已改变，请使用新的运行目录，不复用旧任务")
     # 先提交全部候选再查询，沿用参考项目的异步组织。
     for i in range(config.num_video_candidates):

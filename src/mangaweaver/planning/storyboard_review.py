@@ -2,8 +2,9 @@
 from ..schemas import ReviewReport
 
 
-def select(client, source, script, shot, direction, anchor, candidates, directory, previous_images):
+def select(client, source, script, shot, direction, anchor, candidates, directory, previous_images, cross_shot_image=None):
     sources = [p.image for p in source.panels if p.panel_id in shot.source_panel_ids] + source.reference_images
+    continuity = [cross_shot_image] if cross_shot_image else []
     keys = list(candidates)
     current = keys[0]
     reports = []
@@ -17,9 +18,11 @@ def select(client, source, script, shot, direction, anchor, candidates, director
             "shot": shot.model_dump(mode="json"),
             "direction": direction.model_dump(mode="json") if direction else None,
             "anchor": anchor.model_dump(mode="json"),
-            "source_images": [p.name for p in sources], "previous_images": [p.name for p in previous_images],
+            "source_images": [p.name for p in sources],
+            "previous_shot_final_image": cross_shot_image.name if cross_shot_image else None,
+            "previous_images": [p.name for p in previous_images],
             "candidates": [{"id": k, "image": str(candidates[k].image)} for k in ids],
-        }, ReviewReport, sources + previous_images + [candidates[k].image for k in ids], directory / f"compare_{i+1}.json")
+        }, ReviewReport, sources + continuity + previous_images + [candidates[k].image for k in ids], directory / f"compare_{i+1}.json")
         report.winner({k: candidates[k] for k in ids})
         current = report.winner_id
         reports.append(report)

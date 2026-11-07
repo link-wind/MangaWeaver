@@ -29,6 +29,7 @@ class Config:
     minimax_base_url: str = "https://api.minimax.io"
     minimax_model: str = "MiniMax-H3-Lite"
     resolution: str = "480P"
+    export_resolution: str = "source"
     num_scripts: int = 1
     num_shot_plans: int = 1
     num_directions: int = 1
@@ -63,6 +64,8 @@ class Config:
             raise ValueError("幻灵视频传输方式请选择 requests 或 curl")
         if cfg.target_duration < 0:
             raise ValueError("TARGET_DURATION 不能为负数")
+        if cfg.export_resolution not in {"source", "480P", "720P", "1080P"}:
+            raise ValueError("EXPORT_RESOLUTION 只能为 source、480P、720P 或 1080P")
         if cfg.agent_context_budget < 2000:
             raise ValueError('AGENT_CONTEXT_BUDGET 至少为 2000；这是本地输入预算，不表示模型容量')
         return cfg

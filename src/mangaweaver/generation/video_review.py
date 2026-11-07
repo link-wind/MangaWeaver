@@ -7,7 +7,7 @@ class VideoReviewReport(ReviewReport):
     heard_cues: list[HeardCue] = Field(default_factory=list)
 
 
-def select(client, plan, shot, candidates, destination, previous_video=None, segment=None, speech=None):
+def select(client, plan, shot, candidates, destination, previous_video=None, segment=None, speech=None, feedback=""):
     sources = [p.image for p in plan.source.panels if p.panel_id in shot.source_panel_ids]
     frames = [a.image for a in plan.assets if a.shot_id == shot.shot_id]
     media = sources + frames + ([previous_video] if previous_video else []) + list(candidates.values())
@@ -20,6 +20,7 @@ def select(client, plan, shot, candidates, destination, previous_video=None, seg
         "direction": next((d.model_dump(mode="json") for d in plan.directions if d.shot_id == shot.shot_id), None),
         "segment": segment.model_dump(mode="json") if segment else None,
         "speech_plan": speech.model_dump(mode="json") if speech else None,
+        "redo_feedback": feedback or None,
         "planning_warnings": [i.model_dump() for r in plan.reviews if r.accepted for i in r.issues
                               if i.severity == "warning" and (shot.shot_id in i.location or r.scope.endswith(shot.shot_id))],
         "previous_video": str(previous_video) if previous_video else None,

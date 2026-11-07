@@ -1,5 +1,5 @@
 """动作镜头的镜头内时间设计，非身体运动求解。"""
-from ..schemas import DirectionPlan
+from ..schemas import DirectionPlan, segment_duration_rule
 
 
 def create(client, source, script, shot, directory, previous=None, feedback=()):
@@ -12,7 +12,7 @@ def create(client, source, script, shot, directory, previous=None, feedback=()):
             "shot": shot.model_dump(mode="json"), "script": script.model_dump(mode="json"),
             "previous": previous.model_dump(mode="json") if previous else None,
             "feedback": feedback,
-            "backend_limits": {"model": client.config.minimax_model, "resolution": client.config.resolution, "segment_duration_seconds": "4..15 integer"},
+            "backend_limits": {"model": client.config.minimax_model, "resolution": client.config.resolution, "segment_duration_seconds": segment_duration_rule()},
         }, DirectionPlan, media, directory / f"{cid}.json")
         candidates[cid] = result.check_shot(shot)
     return candidates

@@ -478,7 +478,7 @@ def _dispatch(request):
     config = Config.load(Path(request['env_file']) if request.get('env_file') else None)
     if command == 'environment':
         return environment(config)
-    if command not in {'preprocess', 'plan', 'generate', 'resume'}:
+    if command not in {'preprocess', 'plan', 'generate', 'resume', 'redo', 'assemble'}:
         raise ValueError('未知桌面命令')
     from .cli import parser, execute
     run_dir = Path(request['run_dir']).resolve()
@@ -506,6 +506,8 @@ def _dispatch(request):
             argv += ['--resume']
             if request.get('feedback'):
                 argv += ['--feedback', request['feedback']]
+    elif command == 'redo':
+        argv += ['--segment', request.get('segment', ''), '--feedback', request.get('feedback', '')]
     elif request.get('dry_run'):
         argv += ['--dry-run']
     if command == 'plan':

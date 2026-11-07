@@ -28,6 +28,11 @@ def run(pages, run_dir: Path, case_id: str, reference_images=(), device=None, oc
     else:
         transcript = extract(model, images, detections)
     emit("magi.ocr", status="completed")
+    # 去字参考给生图模型；阅读链路（脚本、审查）继续使用原图。
+    from .mask_text import mask_panel
+    masked_dir = run_dir / "source" / "masked"
+    for panel in panels:
+        panel.masked_image = mask_panel(panel, masked_dir)
     source = SourceManifest(case_id=case_id, panels=panels, transcript=transcript,
                             reference_images=[Path(p).resolve() for p in reference_images])
     # 角色描述在 plan 中调用所选模型；自动预处理不隐式增加生成费用。

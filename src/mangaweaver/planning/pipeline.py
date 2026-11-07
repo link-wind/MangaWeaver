@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from ..events import emit
 from ..io import read_json, signature, write_json
 from ..preprocessing.character_description import describe
-from ..schemas import DirectionPlan, Issue, ProductionPlan, ReviewReport, ReviewRejected, ShotList, SourceScript, VisualAsset
+from ..schemas import DirectionPlan, Issue, ProductionPlan, ReviewReport, ReviewRejected, ShotList, SourceScript, VisualAsset, check_total_duration, dialogue_speaker_issues
 from . import arrangement_review, direction_review, script as script_agent, script_review
 from . import shot_arrangement, shot_direction, storyboard, storyboard_review
 
@@ -35,6 +35,16 @@ def _affects(feedback, target, identifier=None, known_ids=()):
         if identifier is None or identifier in location or not any(k in location for k in known_ids):
             return True
     return False
+
+
+def _previous_shot_final(assets, ordered_shots, shot_id):
+    """跨镜头衔接参考：前一镜头已选关键帧的最后画面；首镜头或无产物时为空。"""
+    ids = [s.shot_id for s in ordered_shots]
+    index = ids.index(shot_id)
+    if index <= 0:
+        return None
+    prior = [a for a in assets if a.shot_id == ids[index - 1]]
+    return max(prior, key=lambda a: a.time).image if prior else None
 
 
 def _draft(directory, run_dir, script, shots, directions, assets, reports, previous=None, paused=False, checkpoint=False):
@@ -124,6 +134,7 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
                 write_json(run_dir / "planning_state.json", previous)
                 feedback = _feedback(previous.reviews)
                 if all(r.accepted for r in previous.reviews):
+                    check_total_duration(previous.shot_list, client.config.target_duration)
                     (run_dir / "planning_draft.json").unlink(missing_ok=True)
                     write_json(run_dir / "production.json", previous)
                     return previous
@@ -151,6 +162,12 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
                 script = previous.script
                 reviews = [r for r in previous.reviews if r.scope == "script"]
             reports.extend(r.model_copy(update={"scope": "script"}) for r in reviews)
+            speaker_issues = dialogue_speaker_issues(script)
+            if speaker_issues:
+                # 待配音对白必须有确定说话人；此时阻断只消耗文本调用，不进入关键画面生成。
+                reports.append(ReviewReport(scope="script",
+                    winner_id=next((r.winner_id for r in reversed(reports) if r.scope == "script"), "candidate_1"),
+                    accepted=False, reason="存在未确定说话人的对白，关键画面生成前必须归属", issues=speaker_issues))
             write_json(directory / "script" / "selected.json", script)
             if any(not r.accepted for r in reports):
                 previous = _draft(directory, run_dir, script, None, [], [], reports, previous)
@@ -224,6 +241,7 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
                     assets.extend(old_assets)
                     reports.extend(old_reviews)
                     continue
+                cross_shot_image = _previous_shot_final(assets, shots.shots, shot.shot_id)
                 previous_images, shot_assets = [], []
                 for anchor in anchors:
                     # 草案只保存已通过的画面；同一设计下可复用正确的前缀帧。
@@ -236,10 +254,14 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
                         reports.extend(r for r in old_reviews if r.accepted)
                         continue
                     emit("storyboard", status="running", shot_id=shot.shot_id, keyframe_id=anchor.keyframe_id)
+                    # 跨镜头衔接参考只传给第一张锚点；后续由本镜头已选画面承接。
+                    continuity = None if previous_images else cross_shot_image
                     candidates = storyboard.create(client, source, script, shot, direction, anchor,
-                        directory / "storyboard" / shot.shot_id / anchor.keyframe_id, previous_images, feedback)
+                        directory / "storyboard" / shot.shot_id / anchor.keyframe_id, previous_images, feedback,
+                        cross_shot_image=continuity)
                     asset, visual_reviews = storyboard_review.select(client, source, script, shot, direction, anchor, candidates,
-                        directory / "reviews" / "storyboard" / shot.shot_id / anchor.keyframe_id, previous_images)
+                        directory / "reviews" / "storyboard" / shot.shot_id / anchor.keyframe_id, previous_images,
+                        cross_shot_image=continuity)
                     reports.extend(r.model_copy(update={"scope": f"storyboard:{shot.shot_id}"}) for r in visual_reviews)
                     if not all(r.accepted for r in visual_reviews):
                         break
@@ -260,6 +282,7 @@ def run(client, source, run_dir: Path, from_stage=None, instruction="", pause_af
                 previous = _draft(directory, run_dir, script, shots, directions, assets, reports, previous)
                 feedback = _feedback(reports)
                 continue
+            check_total_duration(shots, client.config.target_duration)
             selected = ProductionPlan(source=source, script=script, shot_list=shots,
                 directions=directions, assets=assets, reviews=reports)
             write_json(state_path, selected)

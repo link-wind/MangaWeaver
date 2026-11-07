@@ -16,6 +16,30 @@ def unique(values, label):
         raise ValueError(f"{label} 包含重复 ID")
 
 
+# 视频后端单段时长限制（H3：4～15 整数秒）；规划校验、提交前校验与提示词载荷共用。
+SEGMENT_MIN_SECONDS = 4.0
+SEGMENT_MAX_SECONDS = 15.0
+
+
+def is_valid_segment_duration(value: float) -> bool:
+    return abs(value - round(value)) <= 1e-6 and SEGMENT_MIN_SECONDS <= value <= SEGMENT_MAX_SECONDS
+
+
+def require_segment_duration(value: float, label: str):
+    if not is_valid_segment_duration(value):
+        raise ValueError(f"{label} 必须为 {SEGMENT_MIN_SECONDS:g}～{SEGMENT_MAX_SECONDS:g} 的整数秒（视频后端分段限制）")
+
+
+def segment_duration_rule() -> str:
+    """提示词载荷中的段长限制文本；与段长校验共用同一常量。"""
+    return f"{SEGMENT_MIN_SECONDS:g}..{SEGMENT_MAX_SECONDS:g} integer"
+
+
+def check_total_duration(shot_list: "ShotList", target_duration):
+    if target_duration and abs(sum(s.duration for s in shot_list.shots) - target_duration) > 1e-6:
+        raise ValueError("镜头总时长与目标时长不一致，请修订编排")
+
+
 class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
@@ -36,6 +60,8 @@ class Panel(Model):
     text: str = ""
     uncertainties: list[str] = Field(default_factory=list)
     bbox: list[int] | None = None
+    text_boxes: list[list[int]] = Field(default_factory=list)  # 裁格内相对坐标的文字区域
+    masked_image: Path | None = None  # 去字参考图；缺省时生图沿用原图
 
 
 class SourceManifest(Model):
@@ -62,6 +88,14 @@ class SourceManifest(Model):
     @property
     def images(self):
         return [p.image for p in self.panels]
+
+
+def dialogue_speaker_issues(script: "SourceScript") -> list["Issue"]:
+    """待配音对白必须有确定说话人；未确定项在关键画面生成前阻断（Issue 列表）。"""
+    return [Issue(target="script", location=f"{p.panel_id} 第 {i + 1} 句", severity="blocking",
+                  evidence="对白说话人未确定",
+                  suggestion="结合上下文归属最可能的发声角色，把推断依据写入 uncertainties；确实无法归属时在修订说明中说明")
+            for p in script.panels for i, d in enumerate(p.dialogue) if d.speaker_id is None]
 
 
 class Dialogue(Model):
@@ -134,10 +168,12 @@ class ShotList(Model):
                 raise ValueError(f"{shot.shot_id} 引用了未知来源格")
             if not set(shot.character_ids) <= char_ids:
                 raise ValueError(f"{shot.shot_id} 引用了未知角色")
+            if shot.type == "static":
+                require_segment_duration(shot.duration, f"静态镜头 {shot.shot_id} 时长")
             indices = [order[p] for p in shot.source_panel_ids]
             if indices != sorted(indices) or min(indices) < last:
                 raise ValueError(f"{shot.shot_id} 改变了原作事件顺序")
-            last = min(indices)
+            last = max(indices)
             covered.update(shot.source_panel_ids)
         if covered != set(order):
             raise ValueError(f"编排未覆盖来源格：{set(order) - covered}")
@@ -170,6 +206,8 @@ class DirectionPlan(Model):
             raise ValueError(f"{shot.shot_id} 锚点必须覆盖 0 到镜头时长")
         if any(b <= a for a, b in zip(times, times[1:])):
             raise ValueError(f"{shot.shot_id} 锚点时间必须严格递增")
+        for a, b in zip(times, times[1:]):
+            require_segment_duration(b - a, f"{shot.shot_id} 相邻关键帧间隔")
         if not any(a.source_panel_ids for a in self.anchors):
             raise ValueError("至少一个关键画面需要明确关联原漫画瞬间")
         for anchor in self.anchors:

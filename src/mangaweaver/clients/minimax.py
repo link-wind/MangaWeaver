@@ -10,7 +10,7 @@ import requests
 from PIL import Image
 
 from ..config import Config
-from ..schemas import VideoTask
+from ..schemas import SEGMENT_MAX_SECONDS, SEGMENT_MIN_SECONDS, VideoTask, is_valid_segment_duration
 
 
 def validate_task(task: VideoTask, config: Config):
@@ -18,8 +18,8 @@ def validate_task(task: VideoTask, config: Config):
     if config.minimax_model != "MiniMax-H3-Lite" and not standard:
         raise ValueError("当前支持 H3 Lite，或本次明确指定的幻灵标准 H3；不会自动替换模型")
     duration = task.target_duration
-    if not duration.is_integer() or not 4 <= duration <= 15:
-        raise ValueError(f"{task.segment_id} 目标时长 {duration}s 不符合 H3 的 4～15 整数秒；请修改演出计划")
+    if not is_valid_segment_duration(duration):
+        raise ValueError(f"{task.segment_id} 目标时长 {duration}s 不符合 H3 的 {SEGMENT_MIN_SECONDS:g}～{SEGMENT_MAX_SECONDS:g} 整数秒；请修改演出计划")
     resolutions = ("768P", "2K") if standard else ("480P", "768P")
     if config.resolution not in resolutions:
         raise ValueError(f"{config.minimax_model} 分辨率必须为 {resolutions}")

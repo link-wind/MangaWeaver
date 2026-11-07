@@ -10,18 +10,22 @@ def anchors_for(shot, direction):
                    description=shot.description, source_panel_ids=shot.source_panel_ids)]
 
 
-def create(client, source, script, shot, direction, anchor, directory, previous_images, feedback=()):
+def create(client, source, script, shot, direction, anchor, directory, previous_images, feedback=(), cross_shot_image=None):
     candidates = {}
     selected_plan = {"script": signature(script), "shot": shot.model_dump(mode="json"),
                      "direction": (direction or shot).model_dump(mode="json")}
     plan_signature = signature(selected_plan)
-    media = [p.image for p in source.panels if p.panel_id in shot.source_panel_ids] + source.reference_images + previous_images
+    media = [(p.masked_image or p.image) for p in source.panels if p.panel_id in shot.source_panel_ids] + source.reference_images
+    if cross_shot_image:
+        media.append(cross_shot_image)
+    media += previous_images
     character_ids = set(shot.character_ids) or {c for p in script.panels if p.panel_id in shot.source_panel_ids for c in p.character_ids}
     request = {**({"creative_brief": source.creative_brief} if source.creative_brief else {}), "shot": selected_plan["shot"],
                "direction": direction.model_dump(mode="json", exclude={"anchors"}) if direction else None,
                "anchor": anchor.model_dump(mode="json"),
                "characters": [c.model_dump() for c in script.characters if c.character_id in character_ids],
-               "previous_keyframe_images": [p.name for p in previous_images], "feedback": feedback}
+               "previous_keyframe_images": [p.name for p in previous_images],
+               "previous_shot_final_image": cross_shot_image.name if cross_shot_image else None, "feedback": feedback}
     from ..events import professional_inputs
     request, media = professional_inputs('planning/storyboard/create.txt', request, media)
     context = signature({"request": request, "model": client.config.image_model,

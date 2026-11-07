@@ -11,7 +11,12 @@ def load_source(path: Path, value=None):
     source = SourceManifest.model_validate(read_json(path) if value is None else value)
     for panel in source.panels:
         panel.image = (path.parent / panel.image).resolve()
+        if panel.masked_image is not None:
+            panel.masked_image = (path.parent / panel.masked_image).resolve()
     source.reference_images = [(path.parent / p).resolve() for p in source.reference_images]
+    for panel in source.panels:
+        if panel.masked_image is not None and not panel.masked_image.is_file():
+            raise FileNotFoundError(f"去字参考缺失：{panel.masked_image}，请重新预处理或清除该字段")
     for p in source.images + source.reference_images:
         if not p.is_file():
             raise FileNotFoundError(f"来源图像不存在：{p}")
@@ -29,6 +34,19 @@ def extract(model, images, detections):
             model.generate_transcript_for_single_image(result, words, filename=str(path))
             text.append(f"页面 page{i+1:03d}\n" + path.read_text(encoding="utf-8"))
     return "\n\n".join(text)
+
+
+def clip_text_boxes(panels, boxes):
+    """把页面级 OCR 框裁剪进相交格的裁剪坐标；跨格气泡在每格内各自遮罩。"""
+    for panel in panels:
+        if not panel.bbox:
+            continue
+        px1, py1, px2, py2 = panel.bbox
+        for x1, y1, x2, y2 in boxes:
+            rx1, ry1 = max(x1, px1) - px1, max(y1, py1) - py1
+            rx2, ry2 = min(x2, px2) - px1, min(y2, py2) - py1
+            if rx2 > rx1 and ry2 > ry1:
+                panel.text_boxes.append([round(rx1), round(ry1), round(rx2), round(ry2)])
 
 
 def assign_blocks(panels, boxes, texts, order):
@@ -60,6 +78,7 @@ def extract_local(model, images, panels):
                       float(box[:, 0].max()), float(box[:, 1].max())] for box in result.boxes]
             _, orders = model.sort_panels_and_text_bboxes_in_reading_order([[p.bbox for p in page_panels]], [boxes])
             assign_blocks(page_panels, boxes, result.txts, orders[0])
+            clip_text_boxes(page_panels, boxes)
         transcript.append(f"页面 page{page_index:03d} · 本地 OCR 草稿\n" +
                           "\n\n".join(f"{p.panel_id}\n{p.text}" for p in page_panels))
     return "\n\n".join(transcript)

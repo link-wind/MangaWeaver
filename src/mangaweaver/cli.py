@@ -35,7 +35,12 @@ def parser():
     gen = commands.add_parser("generate", help="构建任务、调用 H3、评审与剪辑")
     gen.add_argument("--plan", type=Path, help="ProductionPlan；默认读取运行目录的 production.json")
     gen.add_argument("--dry-run", action="store_true", help="校验并保存任务，不创建模型客户端或提交任务")
-    for command in (pre, plan, gen):
+    redo = commands.add_parser("redo", help="作废未通过的视频段候选并重新提交（付费）")
+    redo.add_argument("--segment", required=True, help="视频段 ID，如 s001_seg01")
+    redo.add_argument("--feedback", default="", help="交给视频评审的修订反馈")
+    asm = commands.add_parser("assemble", help="从各段已选画面重组装成片，不提交、不评审")
+    usage = commands.add_parser("usage", help="只读汇总模型调用与视频提交次数")
+    for command in (pre, plan, gen, redo, asm, usage):
         command.add_argument("--run-dir", type=Path, required=True, help="明确指定本次运行目录")
     return root
 
@@ -68,8 +73,12 @@ def main(argv=None):
         logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s",
                             handlers=[logging.StreamHandler(), logging.FileHandler(run_dir / "log.txt", encoding="utf-8")])
         from .run_lock import run_lock
-        with run_lock(run_dir, args.command):
+        if args.command == "usage":
+            # 只读汇总不加运行锁：可与进行中的生成并发执行，读到的是各文件的完整快照。
             execute(args, config, run_dir)
+        else:
+            with run_lock(run_dir, args.command):
+                execute(args, config, run_dir)
     except (ValueError, RuntimeError, OSError, TimeoutError, RequestException, subprocess.CalledProcessError) as exc:
         root.exit(1, f"错误：{exc}\n")
     return 0
@@ -104,6 +113,18 @@ def execute(args, config, run_dir):
             print(f"阶段检查点已保存：{run_dir / 'planning_pause.json'}")
         else:
             print(f"已选定 {len(result.shot_list.shots)} 个镜头：{run_dir / 'production.json'}")
+    elif args.command == "redo":
+        from .generation.tasks import load_plan
+        from .generation.redo import redo_segment
+        result = redo_segment(config, load_plan(run_dir / "production.json"), run_dir, args.segment, args.feedback)
+        print(result["message"])
+    elif args.command == "assemble":
+        from .generation.tasks import load_plan
+        from .generation.pipeline import export_from_disk
+        print(f"已重组装：{export_from_disk(load_plan(run_dir / 'production.json'), run_dir)}")
+    elif args.command == "usage":
+        from .generation.usage import summarize
+        print(json.dumps(summarize(run_dir), ensure_ascii=False, indent=2))
     else:
         from .generation.tasks import load_plan
         from .generation.pipeline import run
