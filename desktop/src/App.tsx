@@ -1238,7 +1238,7 @@ export default function App() {
                       </div>
                     </div>
                   ))}
-                {tab === "generation" && <Generation run={run} busy={busy} blocker={environment?.video_blocker} onGenerate={dry=>execute("generate",{dry_run:dry})} onResume={()=>execute("resume")} onPlanning={()=>void attempt(async()=>{await flushEdits();setTab('planning');})}/>}
+                {tab === "generation" && <Generation run={run} busy={busy} blocker={environment?.video_blocker} onGenerate={dry=>execute("generate",{dry_run:dry})} onResume={()=>execute("resume")} onPlanning={()=>void attempt(async()=>{await flushEdits();setTab('planning');})} onRedo={(segment,feedback)=>execute("redo",{segment,feedback})} onAssemble={()=>execute("assemble")}/>
                 {tab === "results" &&
                   (run ? (
                     <Results

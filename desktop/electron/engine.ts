@@ -57,6 +57,8 @@ export class Engine {
       "plan",
       "generate",
       "resume",
+      "redo",
+      "assemble",
       "save_source",
       "start_canvas",
       "fork_canvas",
