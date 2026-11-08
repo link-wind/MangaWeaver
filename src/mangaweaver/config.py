@@ -43,10 +43,14 @@ class Config:
     @classmethod
     def load(cls, env_file: Path | None = None):
         load_dotenv(env_file or Path.cwd() / ".env", override=False)
+        return cls.from_values(os.environ)
+
+    @classmethod
+    def from_values(cls, source):
         values = {}
         for name, field in cls.__dataclass_fields__.items():
             key = {"resolution": "MINIMAX_RESOLUTION", "iterations": "NUM_ITERATIONS"}.get(name, name.upper())
-            value = os.getenv(key)
+            value = source.get(key)
             if value:
                 default = field.default
                 values[name] = type(default)(value)

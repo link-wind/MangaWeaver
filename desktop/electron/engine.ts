@@ -51,7 +51,7 @@ export class Engine {
     // 只读命令（environment、read_run、read_source、read_agent_harness 等）不在此列，
     // 可直接转发且不阻塞进行中的制作任务。
     const mutation = [
-      "import_material", "create_simulation", "simulate",
+      "import_material", "create_simulation", "simulate", "save_model_settings", "test_model_settings",
       "agent_answer", "agent_compact", "agent_fork", "agent_switch_branch", "agent_follow_up", "agent_resume_task", "agent_next_batch", "agent_message", "agent_continue", "agent_select_page", "agent_open_pages", "agent_run_stage",
       "preprocess",
       "plan",

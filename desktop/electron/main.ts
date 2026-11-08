@@ -432,7 +432,7 @@ app.whenReady().then(async () => {
         ![
           "capture_references", "submit_message", "withdraw_message", "simulate", "submit_revision", "withdraw_revision", "interrupt_workflow",
           "agent_answer", "agent_compact", "agent_fork", "agent_switch_branch", "agent_follow_up", "agent_resume_task", "agent_next_batch", "agent_message", "agent_continue", "agent_select_page", "agent_open_pages", "agent_run_stage", "load_book_pages", "read_session", "save_book_view",
-          "environment", "read_agent_harness",
+          "environment", "read_agent_harness", "read_model_settings", "check_model_settings", "test_model_settings", "save_model_settings",
           "read_run", "read_candidates", "adopt_candidate", "preview_canvas_delete", "delete_canvas_nodes",
           "start_canvas",
           "fork_canvas",
@@ -525,6 +525,14 @@ app.whenReady().then(async () => {
         if ("expected_revision" in params) input.expected_revision=params.expected_revision;
       } else if (command === "read_source") {
         input.source = await check(params.source);
+      } else if (["read_model_settings", "check_model_settings", "test_model_settings", "save_model_settings"].includes(command)) {
+        if(command === "save_model_settings" && engine.active.size) throw new Error("任务正在执行，结束或停止后可保存模型设置");
+        input.settings=params.settings;
+        if(command === "test_model_settings") {
+          input.service=String(params.service || "");
+          input.kind=String(params.kind || "");
+          input.model=String(params.model || "");
+        }
       } else if (command === "read_agent_harness") {
         // 静态编排清单：不依赖项目或运行目录，也不触发模型。
       } else if (command !== "environment") {

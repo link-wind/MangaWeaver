@@ -143,7 +143,9 @@ export default function App() {
     });
   }
   const flushOnClose=useRef(flushEdits);flushOnClose.current=flushEdits;
+  const settingsCloseGuard=useRef<null|(()=>boolean)>(null);
   useEffect(()=>window.manga.onCloseRequested(async()=>{
+    if(settingsCloseGuard.current?.()===false)return false;
     try{await flushOnClose.current();return true;}catch(e){setError((e as Error).message);return false;}
   }),[]);
   const stopped=useRef(false);
@@ -894,7 +896,7 @@ export default function App() {
         <aside className="sidebar h-full w-full">
           <ProjectSidebar project={project} session={agentSession} runPath={runPath} runs={localRuns} previews={previews} view={view} busy={busy}
             onMaterials={()=>void navigate("materials")}
-            settingsOpen={configOpen} onSettings={()=>void attempt(async()=>{await flushEdits();setConfigOpen(true);})}
+            settingsOpen={configOpen} onSettings={()=>void attempt(async()=>{if(!busy)await flushEdits();setConfigOpen(true);})}
             onHome={()=>void navigate("home")} onLibrary={()=>void navigate("library")}
             onCreate={()=>selectProject('create')} onOpen={()=>selectProject('open')} onAttach={attach} onNewRun={newRun}
             onOpenRun={openRun} onPage={n=>openPages([n])} onBookOverview={()=>void attempt(async()=>{await flushEdits();await persistView({...bookViewRef.current,workspace:{...bookViewRef.current.workspace,mode:'overview'}});setView('canvas');})} bookView={bookView}
@@ -995,7 +997,7 @@ export default function App() {
             </Alert>
           )}
           {selectingMaterial&&<MaterialPicker busy={busy} onBack={()=>setSelectingMaterial(false)} onSelect={async item=>{const path=await window.manga.selectMaterial(item.id);setInputPage(path);setInputMaterial(item);setSelectingMaterial(false);}}/>}
-          {configOpen && <EnvironmentSettings environment={environment} busy={busy} onBack={()=>setConfigOpen(false)} onUpdate={setEnvironment}/>}
+          {configOpen && <EnvironmentSettings environment={environment} busy={busy} onBack={()=>setConfigOpen(false)} onUpdate={setEnvironment} registerCloseGuard={handler=>{settingsCloseGuard.current=handler;return()=>{if(settingsCloseGuard.current===handler)settingsCloseGuard.current=null;};}}/>}
           <div
             ref={contentRef}
             className={`content ${view === "canvas" ? "canvas-content" : view !== "workbench" ? "workspace-content" : "specialist-content"}`}
@@ -1238,7 +1240,7 @@ export default function App() {
                       </div>
                     </div>
                   ))}
-                {tab === "generation" && <Generation run={run} busy={busy} blocker={environment?.video_blocker} onGenerate={dry=>execute("generate",{dry_run:dry})} onResume={()=>execute("resume")} onPlanning={()=>void attempt(async()=>{await flushEdits();setTab('planning');})} onRedo={(segment,feedback)=>execute("redo",{segment,feedback})} onAssemble={()=>execute("assemble")}/>
+                {tab === "generation" && <Generation run={run} busy={busy} blocker={environment?.video_blocker} onGenerate={dry=>execute("generate",{dry_run:dry})} onResume={()=>execute("resume")} onPlanning={()=>void attempt(async()=>{await flushEdits();setTab('planning');})} onRedo={(segment,feedback)=>execute("redo",{segment,feedback})} onAssemble={()=>execute("assemble")}/>}
                 {tab === "results" &&
                   (run ? (
                     <Results

@@ -475,6 +475,9 @@ def _dispatch(request):
         return read_source(request['source'])
     if command == 'save_source':
         return revise_source(request) if request.get('source') else save_source(request)
+    if command in {'read_model_settings', 'check_model_settings', 'test_model_settings', 'save_model_settings'}:
+        from .desktop_settings import handle
+        return handle(request)
     config = Config.load(Path(request['env_file']) if request.get('env_file') else None)
     if command == 'environment':
         return environment(config)
