@@ -32,12 +32,14 @@ MangaWeaver 在生成前增加镜头编排：结合多个漫画格理解事件�
 - **有声短片**：目标为彩色二维动画、日语对白与中文字幕，剪辑保留视频模型原生音轨。
 - **本地恢复**：保存会话、任务 ID、中间产物和审查记录；支持停止本地执行及显式恢复。
 - **桌面素材库**：主动导入漫画，首页选材，查看并继续已有成片。
+- **模型服务设置**：管理已有厂商的连接、任务模型和生成参数；手动点击测试当前地址、Key 和模型。
+- **平台接入 CLI**：从 MangaShelf 导出章节页面并核验摘要，将选定成片和可选字幕发布回平台，保留来源与发布回执。
 
 ### 演示与验证范围
 
 [查看／下载真实生成视频](docs/media/mangaweaver-demo.mp4)（约 13.4 秒）。视频来自已有测试产物，不是静帧模拟。它用于展示流程，仍存在镜头、口型与连续性上的质量限制。
 
-桌面已有真实付费链路测试及本地交互检查；最近前端构建和 22 项已有检查通过。完整动画质量、多窗口布局、个别片段在客户端的播放以及默认 Lite／480P 路线尚不能视为全面验收通过。具体证据见[付费客户端记录](docs/PAID_CLIENT_VALIDATION_2026-10-28.md)和[最近视觉复核](docs/WORKBENCH_VISUAL_VALIDATION_2026-11-02.md)。
+桌面已有真实付费链路测试及本地交互检查。2026-11-08 更新前，Python 104 项、桌面端 42 项检查及前端构建通过；本轮未调用付费模型。完整动画质量和默认 Lite／480P 路线仍不能视为全面验收通过。具体证据见[付费客户端记录](docs/archive/validation-2026-10/PAID_CLIENT_VALIDATION_2026-10-28.md)、[画布验收](docs/archive/validation-2026-11/APPROVED_CANVAS_VALIDATION_2026-11-05.md)和[模型服务设置验收](docs/MODEL_SETTINGS_VALIDATION_2026-11-07.md)。
 
 ## 工作原理
 
@@ -92,7 +94,7 @@ npm run dev
 
 首次进入左下角设置，选择项目根目录、Python、FFmpeg 和本地环境文件。首页添加漫画或从素材库选择，输入改编要求；进入画布后选择页面和制作终点，再启动制作。查看与浏览不会自动提交生成任务。
 
-无需模型凭据即可通过首页加号菜单的“体验本地示例”检查节点逐步出现、停止和继续；它使用预设内容与静帧，不代表 AI 动画质量。
+无需模型凭据即可通过首页的“体验演示”检查节点逐步出现、审查退回、停止和继续；它回放固定漫画素材、预设协作记录与历史生成媒体，不调用模型，也不代表新一轮真实生成。
 
 ### 模型与费用
 
@@ -141,6 +143,7 @@ openspec/           # 变更规划与任务
 - [桌面使用](docs/DESKTOP.md) · [创作 Agent](docs/CREATIVE_AGENT.md) · [Agent 运行时](docs/AGENT_RUNTIME.md)
 - [本地预处理](docs/LOCAL_PREPROCESSING.md) · [画布工作流](docs/CANVAS_WORKFLOW.md)
 - [声音与字幕](docs/H3_PROMPTS.md) · [协议示例](examples/README.md)
+- [模型服务设置与手动测试](docs/MODEL_SETTINGS_VALIDATION_2026-11-07.md) · [MangaShelf 独立平台设计草案](docs/mangashelf/DESIGN.md)
 - [参考实现与第三方说明](docs/REFERENCE.md) · [演示素材说明](docs/media/README.md)
 
 ## 致谢与授权

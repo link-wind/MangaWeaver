@@ -6,7 +6,7 @@
 
 开始前已有大量未提交修改，基线另存 `/tmp/mw-component-migration-baseline.txt` 与 `/tmp/mw-component-migration-baseline.patch`。这些是本次会话的临时审计文件，不是项目依赖。旧变更的未完成客户端验收继续保留。
 
-源码来源、版本、原始源码哈希、MIT 许可和适配说明见 [THIRD_PARTY_UI.md](../desktop/THIRD_PARTY_UI.md)。采用官方 Radix 源码，配置文件明确 `radix-nova`；未安装另一套 Agent 运行时。
+源码来源、版本、原始源码哈希、MIT 许可和适配说明见 [THIRD_PARTY_UI.md](../../../desktop/THIRD_PARTY_UI.md)。采用官方 Radix 源码，配置文件明确 `radix-nova`；未安装另一套 Agent 运行时。
 
 ## 14 类落点
 
@@ -68,4 +68,4 @@
 - 清理旧 CSS 中被后续同选择器声明覆盖的重复属性；页面只保留布局、媒体比例和业务卡片样式。旧按钮、输入和菜单外观不能再覆盖共享组件。
 - 彩色正文、占位和辅助信息统一使用语义文字／弱文字 token；代码与日志仍使用统一等宽字体。
 
-Toonflow 当前依赖的精确对照和 MangaWeaver 不再增加第二套通用组件库的结论见 [Toonflow 借鉴设计方案](TOONFLOW_INSPIRED_DESIGN.md)。
+Toonflow 当前依赖的精确对照和 MangaWeaver 不再增加第二套通用组件库的结论见 [Toonflow 借鉴设计方案](../../TOONFLOW_INSPIRED_DESIGN.md)。

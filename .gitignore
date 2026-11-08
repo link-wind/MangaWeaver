@@ -8,6 +8,7 @@ build/
 .env.*
 !.env.example
 results/
+mangashelf_receipt_*.json
 .DS_Store
 /assets/
 

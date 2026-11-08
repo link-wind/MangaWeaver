@@ -18,7 +18,7 @@ OpenSpec：`align-canvas-with-approved-visual`。以 `docs/prototypes/toonflow-c
 
 输入权限和运行中送达方式进入底部工具区；自动保存继续执行，正常状态可在输入容器提示中查看，保存失败显示重试。视频节点采用可点击的本地媒体封面，不自动播放。整页漫画与分格保持原始比例，镜头表按真实 shot_list 展示。
 
-原型的固定位置、演示对话和计数不进入正式数据。真实图按已有节点与用户保存的位置排列，完整图总览可能比原型更密；可继续通过分组、节点查找和缩放查看。验收记录见 `../docs/APPROVED_CANVAS_VALIDATION_2026-11-05.md`。
+原型的固定位置、演示对话和计数不进入正式数据。真实图按已有节点与用户保存的位置排列，完整图总览可能比原型更密；可继续通过分组、节点查找和缩放查看。验收记录见 `../docs/archive/validation-2026-11/APPROVED_CANVAS_VALIDATION_2026-11-05.md`。
 
 # MangaWeaver 桌面视觉
 
@@ -40,7 +40,7 @@ OpenSpec：`align-canvas-with-approved-visual`。以 `docs/prototypes/toonflow-c
 
 trace 直接映射现有 `WorkflowTask.activities/handoffs/report`，由 `desktop/src/lib/trace.ts` 提供 `traceRoots`、`traceTask`、`roleChain`、`noteRoleChain` 与产物/审查映射，不新增后端协议。架构视图的阶段节点按 `stage` 找任务，子任务阶段回落到父任务，点击后切到协作并高亮；trace 的产物和「查看画布」复用现有 `onLocate` 定位画布节点。
 
-没有引入 assistant-ui 或 agent-prism：前者是单助手模型且 React 19 有已知问题，后者需要 Tailwind 3 和 OTLP/OpenInference 数据模型。实现沿用现有 shadcn/Radix、`Trace`、`StatusBadge` 和语义 token。完整验收见 [对话栏协作 trace 验收](../docs/AGENT_CONVERSATION_TRACE_VALIDATION_2026-11-04.md)。
+没有引入 assistant-ui 或 agent-prism：前者是单助手模型且 React 19 有已知问题，后者需要 Tailwind 3 和 OTLP/OpenInference 数据模型。实现沿用现有 shadcn/Radix、`Trace`、`StatusBadge` 和语义 token。完整验收见 [对话栏协作 trace 验收](../docs/archive/validation-2026-11/AGENT_CONVERSATION_TRACE_VALIDATION_2026-11-04.md)。
 
 ## 编辑器视觉系统（2026-11-04）
 
@@ -48,11 +48,11 @@ trace 直接映射现有 `WorkflowTask.activities/handoffs/report`，由 `deskto
 
 页面只使用 `theme.css` 中的表面、状态、焦点和三档深度变量。对话框和浮层使用更高一档的 `--shadow-overlay`，普通卡片无常态阴影，悬停与选中才使用 `--shadow-raised` 和统一焦点环；三栏分隔只由 `react-resizable-panels` 的贴边分隔线表达，不叠加第二道边框或阴影。画布节点随视口统一缩放，不再切换成胶囊形态，运行状态同时显示颜色、图标和短文字。
 
-本轮实际验收、修复项、构建测试和未覆盖边界见 [编辑器视觉系统验收](../docs/EDITOR_VISUAL_SYSTEM_VALIDATION_2026-11-04.md)。
+本轮实际验收、修复项、构建测试和未覆盖边界见 [编辑器视觉系统验收](../docs/archive/validation-2026-11/EDITOR_VISUAL_SYSTEM_VALIDATION_2026-11-04.md)。
 
 ## 官方组件统一（2026-11-04）
 
-当前变更为 `standardize-desktop-ui-components`。基础控件采用官方 shadcn/ui Radix 源码与单一语义主题；目录和分栏、节点搜索、菜单、弹窗、输入及 Agent 展示使用同一套组件。来源、许可证与适配见 [THIRD_PARTY_UI.md](THIRD_PARTY_UI.md)，逐页迁移见 [组件迁移对照](../docs/UI_COMPONENT_MIGRATION_2026-11-04.md)，实际桌面验收和边界见 [客户端验收](../docs/UI_COMPONENT_VALIDATION_2026-11-04.md)。下面保留此前设计与试用历史，不据此补勾旧变更。
+当前变更为 `standardize-desktop-ui-components`。基础控件采用官方 shadcn/ui Radix 源码与单一语义主题；目录和分栏、节点搜索、菜单、弹窗、输入及 Agent 展示使用同一套组件。来源、许可证与适配见 [THIRD_PARTY_UI.md](THIRD_PARTY_UI.md)，逐页迁移见 [组件迁移对照](../docs/archive/validation-2026-11/UI_COMPONENT_MIGRATION_2026-11-04.md)，实际桌面验收和边界见 [客户端验收](../docs/archive/validation-2026-11/UI_COMPONENT_VALIDATION_2026-11-04.md)。下面保留此前设计与试用历史，不据此补勾旧变更。
 
 画布删除和重新读取使用 AlertDialog；普通设置、选材和引用预览使用 Dialog。三栏统一由 react-resizable-panels 调整，节点右键使用 ContextMenu，节点检索使用 cmdk。任务、工具和子任务使用官方 Trace 展示模式；引擎、会话和付费调用边界继续沿用原实现。
 
@@ -62,7 +62,7 @@ trace 直接映射现有 `WorkflowTask.activities/handoffs/report`，由 `deskto
 
 ## 全客户端体验统一（2026-11-03）
 
-当前采用 `unify-desktop-creation-experience`：统一导航、各专业页面、素材预览、当前分格编辑、候选缩略图和单项环境设置。保留 React Flow 与本地基础组件；此前 assistant-ui 仅阅读视口的试用因收益不足已移除，下面的试用记录是历史状态。代码实施完成，全面客户端验收待完成，见 [本轮实施与验收](../docs/DESKTOP_EXPERIENCE_VALIDATION_2026-11-03.md)。
+当前采用 `unify-desktop-creation-experience`：统一导航、各专业页面、素材预览、当前分格编辑、候选缩略图和单项环境设置。保留 React Flow 与本地基础组件；此前 assistant-ui 仅阅读视口的试用因收益不足已移除，下面的试用记录是历史状态。代码实施完成，全面客户端验收待完成，见 [本轮实施与验收](../docs/archive/validation-2026-11/DESKTOP_EXPERIENCE_VALIDATION_2026-11-03.md)。
 
 画布参考 Toonflow 的工作区层级：节点、文字与连线统一随视口缩放，远景色调保持同一套内容形态；使用轻点阵背景区分画布表面。左下角提供单行视图工具，集中缩放比例、缩放、适应视图、小地图和连线显隐；顶部只保留项目导航、搜索与全览。阶段分组采用带边界和数量标识的紧凑容器，产物节点仍以媒体和状态为主，不常驻编辑控件。
 
@@ -72,7 +72,7 @@ trace 直接映射现有 `WorkflowTask.activities/handoffs/report`，由 `deskto
 
 ## 开源组件局部试用（2026-11-03）
 
-选材弹层与引用菜单采用本地基础组件，保留既有白色视觉；assistant-ui 只接入外部消息和阅读视口。完整范围、依赖版本及客户端验证边界见 [组件试用记录](../docs/OPEN_SOURCE_UI_TRIAL_2026-11-03.md)。此记录不代表旧验收欠项完成。
+选材弹层与引用菜单采用本地基础组件，保留既有白色视觉；assistant-ui 只接入外部消息和阅读视口。完整范围、依赖版本及客户端验证边界见 [组件试用记录](../docs/archive/validation-2026-11/OPEN_SOURCE_UI_TRIAL_2026-11-03.md)。此记录不代表旧验收欠项完成。
 
 ## 共享 UI 原语（2026-11-04）
 
@@ -82,11 +82,11 @@ trace 直接映射现有 `WorkflowTask.activities/handoffs/report`，由 `deskto
 
 以上为局部交互验收，不代表全部专业页面或付费制作流程验收；本轮未调用模型。Sonner 的实际通知显示与运行中消息送达选择尚未完成独立客户端核验。
 
-后续复验已补齐首页、画布、详情、对话和设置在常用及最小窗口的字体与尺寸检查，结果见 [组件迁移客户端验收](../docs/UI_COMPONENT_VALIDATION_2026-11-04.md)。
+后续复验已补齐首页、画布、详情、对话和设置在常用及最小窗口的字体与尺寸检查，结果见 [组件迁移客户端验收](../docs/archive/validation-2026-11/UI_COMPONENT_VALIDATION_2026-11-04.md)。
 
 ## 本轮实施状态（2026-11-03）
 
-OpenSpec `refine-creative-workbench` 已接入选材弹层、节点搜索与上下文详情、受限候选采用、协作折叠、送达状态、环境／版本设置，以及草稿保存和媒体生命周期改进。完整客户端／最小窗口验收尚未完成，见 [本轮验收记录](../docs/CREATIVE_WORKBENCH_VALIDATION_2026-11-03.md)。下文保留历史方案，不据此将旧视觉任务标为完成。
+OpenSpec `refine-creative-workbench` 已接入选材弹层、节点搜索与上下文详情、受限候选采用、协作折叠、送达状态、环境／版本设置，以及草稿保存和媒体生命周期改进。完整客户端／最小窗口验收尚未完成，见 [本轮验收记录](../docs/archive/validation-2026-11/CREATIVE_WORKBENCH_VALIDATION_2026-11-03.md)。下文保留历史方案，不据此将旧视觉任务标为完成。
 
 ## Toonflow 交互参考提案（2026-11-02）
 
@@ -145,4 +145,18 @@ OpenSpec `refine-creative-workbench` 已接入选材弹层、节点搜索与上�
 - 对话提供当前页／全书范围；草稿和手动引用保留起草目标，切页不能悄悄改变发送目标。
 - 窄画布工具栏换行、页码输入保留最小宽度；重复的顶部适应视图按钮在窄画布隐藏，底部适应画布入口保留。
 
-客户端与协议验收见 [整本漫画工作区验收](../docs/BOOK_WORKSPACE_VALIDATION_2026-11-06.md)。
+客户端与协议验收见 [整本漫画工作区验收](../docs/archive/validation-2026-11/BOOK_WORKSPACE_VALIDATION_2026-11-06.md)。
+
+## 模型服务设置（2026-11-07）
+
+按用户确认的两张视觉稿扩展原设置Dialog，保留白色内容、浅灰导航和低饱和紫色选中态。常用1480×980窗口采用1120×760弹窗；1080×720窗口保留24px水平、32px垂直留边。标题与操作底栏固定，只有右侧内容滚动。
+
+- 左侧五类导航，模型设置与本机环境以细线分组；模型服务内部采用厂商列表与单一详情面板。
+- 表单36px控件，13px正文，20px页面标题；覆盖设置范围内旧label外边距，避免重复留白。
+- 模型目录同时展示名称和实际ID；详情默认显示“已配置 · 未验证”，保存成功不能表示远端模型可用。
+- 每个模型提供手动“测试接口”；文本标明最小请求，图像和视频标明真实请求／可能费用。测试中、成功、失败均用文字和语义色反馈，配置变化后结果立即失效。
+- 任务模型采用四行对齐表单；视频审查沿用创作服务，输出参数可跳转生成偏好。
+- 草稿统一保存与本地检查，错误直接说明字段或能力限制；未保存关闭确认使用已有AlertDialog。
+- 运行期间打开设置不触发画布保存，原画布保留并继续接收进度；本机路径与模型配置写入均受运行保护。
+
+实现与截图见 [模型服务设置验收](../docs/MODEL_SETTINGS_VALIDATION_2026-11-07.md)。

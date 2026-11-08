@@ -30,7 +30,7 @@
 
 当前实际验证渠道为幻灵 `gemini-3.8-flash` 的 native／curl 流式入口。Gemini 客户端也实现显式兼容接口和 SDK 流式读取，但本轮未对所有渠道作真实验证；尚未适配流式的 Kie／词元对话入口会明确报错，不自动换模型或伪装成流式。既有 CLI 制作调用仍可使用原 JSON 入口。
 
-验证范围与证据见 [客户端验收记录](CLIENT_AGENT_RUNTIME_2026-11-01.md)。
+验证范围与证据见 [客户端验收记录](archive/validation-2026-11/CLIENT_AGENT_RUNTIME_2026-11-01.md)。
 
 ## 流式连接错误（2026-11-01修正）
 

@@ -173,4 +173,4 @@
 
 ## 10. 交付边界
 
-本文是本轮实施依据，具体完成与验证边界见 [任务上下文修改验收](WORKBENCH_CONTEXT_VALIDATION_2026-11-01.md)。此前界面优化见 [2026-11-01 验收记录](WORKBENCH_UX_2026-11-01.md)；历史验收与本轮修改分开记录。
+本文是本轮实施依据，具体完成与验证边界见 [任务上下文修改验收](archive/validation-2026-10/WORKBENCH_CONTEXT_VALIDATION_2026-11-01.md)。此前界面优化见 [2026-11-01 验收记录](archive/validation-2026-10/WORKBENCH_UX_2026-11-01.md)；历史验收与本轮修改分开记录。

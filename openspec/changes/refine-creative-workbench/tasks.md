@@ -45,5 +45,5 @@
 - [x] 7.3 完成类型、构建和本地回归检查，记录接入版本、收益和未验证边界；React Flow 继续沿用，分栏库暂不迁入。
 
 此前进度：19/21。6.2、6.3 保留待验收，追加任务单独记录。
-本轮追加 3 项已完成，总进度 22/24。记录见 docs/OPEN_SOURCE_UI_TRIAL_2026-11-03.md。
-实际客户端证据和应用接口限制见 `docs/CREATIVE_WORKBENCH_VALIDATION_2026-11-03.md`；未修改其他变更的验收状态，未归档。
+本轮追加 3 项已完成，总进度 22/24。记录见 docs/archive/validation-2026-11/OPEN_SOURCE_UI_TRIAL_2026-11-03.md。
+实际客户端证据和应用接口限制见 `docs/archive/validation-2026-11/CREATIVE_WORKBENCH_VALIDATION_2026-11-03.md`；未修改其他变更的验收状态，未归档。

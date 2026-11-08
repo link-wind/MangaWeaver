@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="31.1.8">
+  <diagram id="mangashelf-architecture" name="系统架构">
+    <mxGraphModel dx="1500" dy="1060" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1060" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="2" value="MangaShelf · 漫画阅读与动画内容平台" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#202734;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1300" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="3" value="设计 v0.1 · 2026-11-07 · 一个 Java 工程，API 与 Worker 两种运行角色；创作 Agent 保留在 MangaWeaver" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontColor=#677084;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="1300" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="4" value="客户端" style="swimlane;html=1;startSize=30;horizontal=1;rounded=1;arcSize=8;container=1;pointerEvents=0;collapsible=0;fillColor=#f6f8fc;swimlaneFillColor=#ffffff;strokeColor=#dce2eb;fontColor=#47536a;fontSize=16;fontStyle=1;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="1300" height="130" as="geometry"/>
+        </mxCell>
+        <mxCell id="5" value="漫画网站 · React / TypeScript&#xa;书库 · 在线阅读 · 动画观看 · 智能检索" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#edf3ff;strokeColor=#a7bce5;fontColor=#223854;fontSize=17;fontFamily=PingFang SC;spacing=10;" vertex="1" parent="4">
+          <mxGeometry x="30" y="50" width="520" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="6" value="MangaWeaver · 独立创作客户端&#xa;Agent / Creator ↔ Reviewer · 生成与审查" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;dashed=1;fillColor=#f2effa;strokeColor=#b3a5ce;fontColor=#493b65;fontSize=17;fontFamily=PingFang SC;spacing=10;" vertex="1" parent="4">
+          <mxGeometry x="750" y="50" width="520" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="7" value="Java API · Spring Boot / Spring Security / Spring JDBC / Spring AI" style="swimlane;html=1;startSize=40;horizontal=1;rounded=1;arcSize=8;container=1;pointerEvents=0;collapsible=0;fillColor=#edf3ff;swimlaneFillColor=#f9fbff;strokeColor=#a7bce5;fontColor=#223854;fontSize=18;fontStyle=1;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="320" width="1300" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="8" value="身份与目录&#xa;Session / Token · 作品 / 章节 / 版本" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ffffff;strokeColor=#c6d4ed;fontColor=#344560;fontSize=16;fontFamily=PingFang SC;spacing=8;" vertex="1" parent="7">
+          <mxGeometry x="30" y="60" width="380" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="9" value="阅读与动画发布&#xa;来源映射 · 进度 · 上传 / 播放授权" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ffffff;strokeColor=#c6d4ed;fontColor=#344560;fontSize=16;fontFamily=PingFang SC;spacing=8;" vertex="1" parent="7">
+          <mxGeometry x="460" y="60" width="380" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="10" value="检索与客户端接入&#xa;混合召回 / RAG · 素材导出 / 成片回传" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ffffff;strokeColor=#c6d4ed;fontColor=#344560;fontSize=16;fontFamily=PingFang SC;spacing=8;" vertex="1" parent="7">
+          <mxGeometry x="890" y="60" width="380" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="11" value="PostgreSQL&#xa;内容 / 来源 / 任务 / Outbox&#xa;pgvector · pg_trgm" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=15;fillColor=#edf6f1;strokeColor=#93b5a2;fontColor=#294c3d;fontSize=17;fontFamily=PingFang SC;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="90" y="570" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="12" value="RabbitMQ&#xa;任务通知 · 发布确认 / 消费确认&#xa;数据库任务记录是事实" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#fff6e3;strokeColor=#d4b775;fontColor=#705324;fontSize=17;fontFamily=PingFang SC;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="550" y="570" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="13" value="S3 兼容对象存储&#xa;原漫画 / 页面图 / 视频 / 字幕&#xa;私有对象 · 临时授权" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=15;fillColor=#edf6f1;strokeColor=#93b5a2;fontColor=#294c3d;fontSize=17;fontFamily=PingFang SC;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="570" width="320" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="14" value="Worker · 与 API 共用 Java 工程" style="swimlane;html=1;startSize=35;horizontal=1;rounded=1;arcSize=8;container=1;pointerEvents=0;collapsible=0;fillColor=#fff6e3;swimlaneFillColor=#fffdfa;strokeColor=#d4b775;fontColor=#705324;fontSize=17;fontStyle=1;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="460" y="790" width="500" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="15" value="任务领取 / 租约 / 阶段提交 / 媒体校验 / 索引" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#ffffff;strokeColor=#dfcda8;fontColor=#5e513d;fontSize=15;fontFamily=PingFang SC;spacing=8;" vertex="1" parent="14">
+          <mxGeometry x="20" y="50" width="460" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="16" value="固定 Python / FFmpeg 任务&#xa;分页 · MAGI / OCR · 图像与音视频元数据" style="rounded=1;whiteSpace=wrap;html=1;arcSize=10;fillColor=#f6f5f1;strokeColor=#d4cabb;fontColor=#5e513d;fontSize=15;fontFamily=PingFang SC;spacing=6;" vertex="1" parent="14">
+          <mxGeometry x="20" y="110" width="460" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="17" value="HTTPS · Session / CSRF" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#8191ad;fontColor=#61708b;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.16;entryY=0;" edge="1" parent="1" source="5" target="7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="18" value="HTTPS · 限权 Token" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;strokeColor=#a390be;fontColor=#75608d;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.84;entryY=0;" edge="1" parent="1" source="6" target="7">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="19" value="SQL / 事务" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#8191ad;fontColor=#61708b;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.146;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="7" target="11">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="20" value="Outbox 派发" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#b99a58;fontColor=#8b713d;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="7" target="12">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="21" value="核验 / 签名" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#8191ad;fontColor=#61708b;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.854;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="7" target="13">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="22" value="领取通知" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#b99a58;fontColor=#8b713d;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="12" target="14">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="23" value="租约 / 结果 / 事件" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#93b5a2;fontColor=#557a68;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=0.5;entryY=1;" edge="1" parent="1" source="14" target="11">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="250" y="875"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="24" value="读取输入 / 上传产物" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#93b5a2;fontColor=#557a68;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=0.5;entryY=1;" edge="1" parent="1" source="14" target="13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1170" y="875"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="25" value="JSON 清单 / JSONL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#b8aa8c;fontSize=11;fontColor=#8a7a5f;fontFamily=PingFang SC;labelBackgroundColor=#fffdfa;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="14" source="15" target="16">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="26" value="媒体直传 / 直读" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;dashed=1;strokeColor=#a4b0c2;fontColor=#77849b;fontSize=13;fontFamily=PingFang SC;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" edge="1" parent="1" source="4" target="13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1420" y="185"/><mxPoint x="1420" y="625"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="27" value="闭环：网站选页 → MangaWeaver 创作 → 主动发布成片 → 网站观看并定位原作" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;fontColor=#344560;fontFamily=PingFang SC;" vertex="1" parent="1">
+          <mxGeometry x="60" y="990" width="1300" height="40" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

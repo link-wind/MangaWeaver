@@ -2,7 +2,7 @@
 
 日期：2026-11-01  
 OpenSpec：`clarify-workbench-task-context`  
-实施依据：[界面修改方案](WORKBENCH_UI_IMPROVEMENT_PLAN.md)。
+实施依据：[界面修改方案](../../WORKBENCH_UI_IMPROVEMENT_PLAN.md)。
 
 ## 已完成的修改
 

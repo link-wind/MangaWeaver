@@ -111,7 +111,7 @@ shadcn 是将源码交给项目维护的方案，能减少从零实现与页面�
 | WorkCard、ToolRecord、work-step | [Task](https://ui.shadcn.com/docs/ai-elements/base/task)、Tool、Trace | 显示真实公开事件，保留 Creator／Reviewer、轮次、退回和完成状态 |
 | 子专业任务与队列 | [Subagent](https://ui.shadcn.com/docs/ai-elements/base/subagent)、Queue | 根据当前 parent_id／call_id 映射，不因 UI 名称改变引擎模型或任务协议 |
 
-本项目之前已移除只有阅读视口收益的 assistant-ui 试接入，详见 `docs/OPEN_SOURCE_UI_TRIAL_2026-11-03.md`。新试用必须先说明能替换哪些现有代码；不重复引入一套会话运行时。也不因为采用某个聊天样例而改用 Next.js 或替换 Python／JSONL／IPC。
+本项目之前已移除只有阅读视口收益的 assistant-ui 试接入，详见 `docs/archive/validation-2026-11/OPEN_SOURCE_UI_TRIAL_2026-11-03.md`。新试用必须先说明能替换哪些现有代码；不重复引入一套会话运行时。也不因为采用某个聊天样例而改用 Next.js 或替换 Python／JSONL／IPC。
 
 ## 6. 保留的 4 类业务定制
 
