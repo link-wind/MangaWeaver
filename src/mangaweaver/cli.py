@@ -40,6 +40,26 @@ def parser():
     redo.add_argument("--feedback", default="", help="交给视频评审的修订反馈")
     asm = commands.add_parser("assemble", help="从各段已选画面重组装成片，不提交、不评审")
     usage = commands.add_parser("usage", help="只读汇总模型调用与视频提交次数")
+    shelf_export = commands.add_parser("shelf-export",
+                                       help="从 MangaShelf 平台导出章节页面（协议 v1）")
+    shelf_export.add_argument("--platform", required=True, help="平台地址，如 https://shelf.example")
+    shelf_export.add_argument("--token", required=True, help="平台接入 Token（ms_ 开头）")
+    shelf_export.add_argument("--chapter-revision-id", required=True, help="章节版本 ID")
+    shelf_export.add_argument("--output", type=Path, required=True, help="导出目录")
+    shelf_publish = commands.add_parser("shelf-publish",
+                                        help="把本地成片回传 MangaShelf 平台（协议 v1）")
+    shelf_publish.add_argument("--platform", required=True, help="平台地址")
+    shelf_publish.add_argument("--token", required=True, help="平台接入 Token")
+    shelf_publish.add_argument("--title", required=True, help="动画标题")
+    shelf_publish.add_argument("--origin-run-ref", required=True,
+                               help="发布请求键：同键幂等，重新制作请换新键")
+    shelf_publish.add_argument("--source", required=True, action="append",
+                               help="来源 章节版本ID:起页:止页，可多次指定")
+    shelf_publish.add_argument("--video", type=Path, required=True, help="成片 MP4")
+    shelf_publish.add_argument("--subtitle", type=Path, help="字幕 SRT/VTT（可选）")
+    shelf_publish.add_argument("--animation-id", help="定向已有动画创建修订版（可选）")
+    shelf_publish.add_argument("--visibility", choices=["PRIVATE", "PUBLIC"], default="PRIVATE",
+                               help="期望可见性（仅记录意图，需用户确认发布）")
     for command in (pre, plan, gen, redo, asm, usage):
         command.add_argument("--run-dir", type=Path, required=True, help="明确指定本次运行目录")
     return root
@@ -66,6 +86,10 @@ def _record_source(run_dir, source):
 def main(argv=None):
     root = parser()
     args = root.parse_args(argv)
+    if args.command in ("shelf-export", "shelf-publish"):
+        # 平台接入是纯网络工具：不使用运行目录与运行锁，凭证显式传入
+        from .shelf_client import handle as shelf_handle
+        return shelf_handle(args)
     try:
         config = Config.load(args.env_file)
         run_dir = args.run_dir.resolve()
@@ -135,3 +159,7 @@ def execute(args, config, run_dir):
             print("仅构建任务，未调用模型。")
         else:
             print(f"已导出：{result}")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
